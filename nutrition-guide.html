@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Система харчування</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --card: #161b24;
+    --card2: #1c2330;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --accent3: #4fc3f7;
+    --text: #f0f4ff;
+    --muted: #7a8499;
+    --border: rgba(255,255,255,0.07);
+    --protein: #ff6b6b;
+    --carbs: #ffd93d;
+    --fat: #6bcb77;
+    --fiber: #4d96ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(232,255,71,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,107,53,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header .tag {
+    display: inline-block;
+    background: rgba(232,255,71,0.12);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(232,255,71,0.2);
+  }
+
+  .header h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .header p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: flex;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 6px;
+    gap: 6px;
+    margin-bottom: 36px;
+    border: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mode-btn.active {
+    background: var(--accent);
+    color: #0d0f14;
+  }
+
+  .mode-btn.active.mass {
+    background: var(--accent2);
+    color: #fff;
+  }
+
+  .mode-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  /* MEALS GRID */
+  .meals-grid {
+    display: grid;
+    gap: 16px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .meal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .meal-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.14);
+  }
+
+  .meal-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .meal-card.breakfast::before { background: linear-gradient(90deg, #ffd93d, #ff6b35); }
+  .meal-card.lunch::before { background: linear-gradient(90deg, #ff6b6b, #e8ff47); }
+  .meal-card.dinner::before { background: linear-gradient(90deg, #4fc3f7, #6bcb77); }
+  .meal-card.snack::before { background: linear-gradient(90deg, #a78bfa, #4fc3f7); }
+
+  .meal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .meal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .breakfast .meal-icon { background: rgba(255,217,61,0.15); }
+  .lunch .meal-icon { background: rgba(255,107,107,0.15); }
+  .dinner .meal-icon { background: rgba(79,195,247,0.15); }
+  .snack .meal-icon { background: rgba(167,139,250,0.15); }
+
+  .meal-meta h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .meal-time {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .meal-purpose {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .breakfast .meal-purpose { background: rgba(255,217,61,0.15); color: #ffd93d; }
+  .lunch .meal-purpose { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+  .dinner .meal-purpose { background: rgba(79,195,247,0.15); color: #4fc3f7; }
+  .snack .meal-purpose { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+  /* MACRO PILLS */
+  .macro-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .macro-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+
+  .macro-pill.protein { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); color: #ff8f8f; }
+  .macro-pill.carbs { background: rgba(255,217,61,0.1); border-color: rgba(255,217,61,0.3); color: #ffd93d; }
+  .macro-pill.fat { background: rgba(107,203,119,0.1); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
+  .macro-pill.fiber { background: rgba(77,150,255,0.1); border-color: rgba(77,150,255,0.3); color: #4d96ff; }
+
+  .macro-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .protein .macro-dot { background: #ff6b6b; }
+  .carbs .macro-dot { background: #ffd93d; }
+  .fat .macro-dot { background: #6bcb77; }
+  .fiber .macro-dot { background: #4d96ff; }
+
+  /* FOOD EXAMPLES */
+  .food-section label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
+  .food-item {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .food-item:hover { background: rgba(255,255,255,0.06); }
+  .food-item .fi { font-size: 16px; }
+
+  /* WHY BLOCK */
+  .why-block {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: rgba(232,255,71,0.05);
+    border: 1px solid rgba(232,255,71,0.12);
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(240,244,255,0.8);
+  }
+
+  .why-block strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* VISUAL PLATE */
+  .plate-section {
+    margin-top: 36px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .plate-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .plate-cards { grid-template-columns: 1fr; }
+  }
+
+  .plate-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .plate-card:hover { transform: translateY(-3px); }
+
+  .plate-visual {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .plate-card h4 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .plate-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* SVG PLATE */
+  .svg-plate {
+    width: 80px;
+    height: 80px;
+  }
+
+  /* RULES BLOCK */
+  .rules-section {
+    margin-top: 36px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 500px) {
+    .rules-grid { grid-template-columns: 1fr; }
+  }
+
+  .rule-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: transform 0.2s;
+  }
+
+  .rule-card:hover { transform: translateY(-2px); }
+
+  .rule-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+
+  .rule-card h4 {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .rule-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* HIDDEN CONTENT */
+  .mode-content { display: none; }
+  .mode-content.active { display: block; }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .meal-card {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  /* FOOTER TAG */
+  .footer-note {
+    margin-top: 48px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(122,132,153,0.5);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="tag">Система харчування</div>
+    <h1>Їжа як <span>інструмент</span><br>а не як покарання</h1>
+    <p>Три прийоми їжі — три задачі. Зрозумій логіку і дотримання стане автоматичним.</p>
+  </div>
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('cut')">
+      <span class="icon">🔥</span>
+      СУШКА / РЕЛЬЄФ
+    </button>
+    <button class="mode-btn mass" onclick="setMode('mass')">
+      <span class="icon">💪</span>
+      НАБІР МАСИ
+    </button>
+  </div>
+
+  <!-- ===== СУШКА ===== -->
+  <div class="mode-content active" id="cut">
+    <div class="meals-grid">
+
+      <!-- СНІДАНОК -->
+      <div class="meal-card breakfast" style="animation-delay:0.05s">
+        <div class="meal-header">
+          <div class="meal-icon">☀️</div>
+          <div class="meal-meta">
+            <h3>Сніданок</h3>
+            <div class="meal-time">07:00 — 09:00</div>
+          </div>
+          <div class="meal-purpose">ПАЛИВО</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
+          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи</div>
+        </div>
+        <div class="food-section">
+          <label>Білок — обери один</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🥚</span>Омлет / яйця</div>
+            <div class="food-item"><span class="fi">🥤</span>Протеїн</div>
+            <div class="food-item"><span class="fi">🐔</span>Куряча грудка</div>
+          </div>
+        </div>
+        <div class="food-section" style="margin-top:12px">
+          <label>Вуглеводи — обери один</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🌾</span>Вівсянка</div>
+            <div class="food-item"><span class="fi">🍚</span>Рис</div>
+            <div class="food-item"><span class="fi">🫘</span>Гречка</div>
+            <div class="food-item"><span class="fi">🫓</span>Цільнозерновий хліб</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Чому?</strong> Після сну глікоген в м'язах знижений. Вуглеводи зарядять тебе енергією на першу половину дня. Білок зупинить катаболізм і дасть ситість.
+        </div>
+      </div>
+
+      <!-- ОБІД -->
+      <div class="meal-card lunch" style="animation-delay:0.1s">
+        <div class="meal-header">
+          <div class="meal-icon">⚡</div>
+          <div class="meal-meta">
+            <h3>Обід</h3>
+            <div class="meal-time">12:00 — 14:00</div>
+          </div>
+          <div class="meal-purpose">БУДІВНИЦТВО</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
+          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи</div>
+          <div class="macro-pill fiber"><div class="macro-dot"></div>Клітковина</div>
+        </div>
+        <div class="food-section">
+          <label>М'ясо — обери один</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🐔</span>Курка</div>
+            <div class="food-item"><span class="fi">🥩</span>Яловичина</div>
+            <div class="food-item"><span class="fi">🐟</span>Риба</div>
+            <div class="food-item"><span class="fi">🦃</span>Індичка</div>
+          </div>
+        </div>
+        <div class="food-section" style="margin-top:12px">
+          <label>Гарнір + овочі</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🍚</span>Рис / гречка</div>
+            <div class="food-item"><span class="fi">🥦</span>Броколі</div>
+            <div class="food-item"><span class="fi">🥗</span>Салат</div>
+            <div class="food-item"><span class="fi">🫑</span>Перець</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Чому?</strong> Пік активності — пік їжі. Великий прийом білку + вуглеводів у середині дня дає максимальний анаболічний відгук і не відкладається в жир.
+        </div>
+      </div>
+
+      <!-- ВЕЧЕРЯ -->
+      <div class="meal-card dinner" style="animation-delay:0.15s">
+        <div class="meal-header">
+          <div class="meal-icon">🌙</div>
+          <div class="meal-meta">
+            <h3>Вечеря</h3>
+            <div class="meal-time">18:00 — 20:00</div>
+          </div>
+          <div class="meal-purpose">ВІДНОВЛЕННЯ</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Тільки білок</div>
+          <div class="macro-pill fiber"><div class="macro-dot"></div>Клітковина</div>
+        </div>
+        <div class="food-section">
+          <label>Повільний білок — обери один</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🧀</span>Творог 0-5%</div>
+            <div class="food-item"><span class="fi">🥚</span>Білки яєць</div>
+            <div class="food-item"><span class="fi">🐟</span>Риба на пару</div>
+            <div class="food-item"><span class="fi">🍗</span>Куряча грудка</div>
+          </div>
+        </div>
+        <div class="food-section" style="margin-top:12px">
+          <label>Додатково</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🥒</span>Огірки</div>
+            <div class="food-item"><span class="fi">🥬</span>Листова зелень</div>
+            <div class="food-item"><span class="fi">🍅</span>Томати</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Чому?</strong> Вночі гормон росту працює на максимумі. Творог = казеїновий білок = повільне засвоєння 6-8 годин. Годуємо м'язи поки спимо. Без вуглеводів — немає стрибка інсуліну = жироспалювання вночі.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== НАБІР ===== -->
+  <div class="mode-content" id="mass">
+    <div class="meals-grid">
+
+      <!-- СНІДАНОК -->
+      <div class="meal-card breakfast" style="animation-delay:0.05s">
+        <div class="meal-header">
+          <div class="meal-icon">☀️</div>
+          <div class="meal-meta">
+            <h3>Сніданок</h3>
+            <div class="meal-time">07:00 — 09:00</div>
+          </div>
+          <div class="meal-purpose">ПАЛИВО</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
+          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи ↑</div>
+        </div>
+        <div class="food-section">
+          <label>Великий сніданок</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🥚</span>3-4 яйця</div>
+            <div class="food-item"><span class="fi">🌾</span>Вівсянка 100г</div>
+            <div class="food-item"><span class="fi">🍌</span>Банан</div>
+            <div class="food-item"><span class="fi">🍯</span>Мед / горіхи</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Набір:</strong> Ранок — максимальна чутливість до інсуліну. Більше вуглеводів = кращий транспорт нутрієнтів у м'язи. Не бійся калорій зранку — вони підуть у роботу.
+        </div>
+      </div>
+
+      <!-- ПЕРЕКУС -->
+      <div class="meal-card snack" style="animation-delay:0.08s">
+        <div class="meal-header">
+          <div class="meal-icon">⚡</div>
+          <div class="meal-meta">
+            <h3>Перекус 1</h3>
+            <div class="meal-time">10:30 — 11:30</div>
+          </div>
+          <div class="meal-purpose">ПІДЖИВЛЕННЯ</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
+          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи</div>
+        </div>
+        <div class="food-section">
+          <label>Швидкий перекус</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🥤</span>Протеїновий коктейль</div>
+            <div class="food-item"><span class="fi">🍌</span>Фрукт</div>
+            <div class="food-item"><span class="fi">🫘</span>Горіхи жменя</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Чому?</strong> На наборі між прийомами їжі не повинно бути провалів в амінокислотах. Підтримуємо анаболічне вікно протягом всього дня.
+        </div>
+      </div>
+
+      <!-- ОБІД -->
+      <div class="meal-card lunch" style="animation-delay:0.11s">
+        <div class="meal-header">
+          <div class="meal-icon">🍽️</div>
+          <div class="meal-meta">
+            <h3>Обід</h3>
+            <div class="meal-time">13:00 — 14:30</div>
+          </div>
+          <div class="meal-purpose">ОСНОВНИЙ ПРИЙОМ</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Білок ↑↑</div>
+          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи ↑↑</div>
+          <div class="macro-pill fat"><div class="macro-dot"></div>Жири</div>
+        </div>
+        <div class="food-section">
+          <label>Великий обід — основа дня</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🥩</span>М'ясо 200-250г</div>
+            <div class="food-item"><span class="fi">🍚</span>Рис 150г</div>
+            <div class="food-item"><span class="fi">🥦</span>Овочі</div>
+            <div class="food-item"><span class="fi">🫒</span>Оливкова олія</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Чому?</strong> Головний прийом дня. Тут максимум калорій і нутрієнтів. Жири допомагають засвоєнню жиророзчинних вітамінів і дають додаткові калорії для росту.
+        </div>
+      </div>
+
+      <!-- ВЕЧЕРЯ -->
+      <div class="meal-card dinner" style="animation-delay:0.14s">
+        <div class="meal-header">
+          <div class="meal-icon">🌙</div>
+          <div class="meal-meta">
+            <h3>Вечеря</h3>
+            <div class="meal-time">19:00 — 20:30</div>
+          </div>
+          <div class="meal-purpose">РІС ВНОЧІ</div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill protein"><div class="macro-dot"></div>Білок ↑</div>
+          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи (помірно)</div>
+        </div>
+        <div class="food-section">
+          <label>Вечеря на масі</label>
+          <div class="food-grid">
+            <div class="food-item"><span class="fi">🧀</span>Творог</div>
+            <div class="food-item"><span class="fi">🍗</span>Куряча грудка</div>
+            <div class="food-item"><span class="fi">🍚</span>Невелика порція рису</div>
+            <div class="food-item"><span class="fi">🥗</span>Овочі</div>
+          </div>
+        </div>
+        <div class="why-block">
+          <strong>Чому?</strong> На наборі вночі теж потрібне паливо. Невелика кількість вуглеводів перед сном підтримує рівень глікогену і покращує якість сну і відновлення.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ТАРІЛКА -->
+  <div class="plate-section">
+    <div class="section-title">Метод тарілки — просто запам'ятай</div>
+    <div class="plate-cards">
+      <div class="plate-card">
+        <svg class="svg-plate" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="36" fill="#1c2330" stroke="#2a3346" stroke-width="2"/>
+          <!-- half protein -->
+          <path d="M40,40 L40,4 A36,36 0 0,1 76,40 Z" fill="rgba(255,107,107,0.35)"/>
+          <path d="M40,40 L76,40 A36,36 0 0,1 40,76 Z" fill="rgba(255,107,107,0.2)"/>
+          <!-- quarter carbs -->
+          <path d="M40,40 L40,4 A36,36 0 0,0 4,40 Z" fill="rgba(255,217,61,0.35)"/>
+          <!-- quarter fiber -->
+          <path d="M40,40 L4,40 A36,36 0 0,0 40,76 Z" fill="rgba(77,150,255,0.35)"/>
+          <circle cx="40" cy="40" r="10" fill="#161b24" stroke="#2a3346" stroke-width="1.5"/>
+          <text x="40" y="44" text-anchor="middle" font-size="12" fill="#fff">🍽️</text>
+        </svg>
+        <h4>СУШКА</h4>
+        <p>½ білок · ¼ вуглеводи · ¼ клітковина</p>
+      </div>
+      <div class="plate-card">
+        <svg class="svg-plate" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="36" fill="#1c2330" stroke="#2a3346" stroke-width="2"/>
+          <path d="M40,40 L40,4 A36,36 0 0,1 76,40 Z" fill="rgba(255,107,107,0.35)"/>
+          <path d="M40,40 L76,40 A36,36 0 0,1 59.8,69.8 Z" fill="rgba(255,217,61,0.4)"/>
+          <path d="M40,40 L59.8,69.8 A36,36 0 0,1 20.2,69.8 Z" fill="rgba(255,217,61,0.25)"/>
+          <path d="M40,40 L20.2,69.8 A36,36 0 0,1 4,40 Z" fill="rgba(77,150,255,0.3)"/>
+          <path d="M40,40 L4,40 A36,36 0 0,1 40,4 Z" fill="rgba(107,203,119,0.3)"/>
+          <circle cx="40" cy="40" r="10" fill="#161b24" stroke="#2a3346" stroke-width="1.5"/>
+          <text x="40" y="44" text-anchor="middle" font-size="12" fill="#fff">💪</text>
+        </svg>
+        <h4>НАБІР</h4>
+        <p>⅓ білок · ⅓ вуглеводи · ⅙ жири · ⅙ клітковина</p>
+      </div>
+      <div class="plate-card">
+        <div class="plate-visual" style="background:rgba(232,255,71,0.08); font-size:34px">⏰</div>
+        <h4>ТАЙМИНГ</h4>
+        <p>Їж кожні 3-4 години. Не чекай голоду — їж за розкладом.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРАВИЛА -->
+  <div class="rules-section">
+    <div class="section-title">5 правил, які не порушуються</div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-num">01</div>
+        <div>
+          <h4>Білок у кожному прийомі</h4>
+          <p>Мінімум 25-40г білку на прийом. Без цього тіло не будує м'язи і не відновлюється.</p>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">02</div>
+        <div>
+          <h4>Вуглеводи — зранку і вдень</h4>
+          <p>Чим пізніше — тим менше вуглеводів. Ввечері тіло їх не спалює — відкладає.</p>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">03</div>
+        <div>
+          <h4>Вода 30-40мл/кг ваги</h4>
+          <p>Без достатньо води метаболізм сповільнюється на 3%. Пий між прийомами їжі.</p>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">04</div>
+        <div>
+          <h4>Не пропускай прийоми</h4>
+          <p>Пропуск їжі = стрес + підвищення кортизолу = руйнування м'язів і уповільнення метаболізму.</p>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">05</div>
+        <div>
+          <h4>Овочі — щодня</h4>
+          <p>Клітковина уповільнює засвоєння цукру, годує мікробіом і покращує засвоєння білку.</p>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">06</div>
+        <div>
+          <h4>Постійність > перфекціонізм</h4>
+          <p>Система 80/20. Відпрацюй 6 днів ідеально — один день можна більш вільно. Без стресу.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">Зроблено для твого наставництва ✦</div>
+</div>
+
+<script>
+  function setMode(mode) {
+    document.querySelectorAll('.mode-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(mode).classList.add('active');
+    const btns = document.querySelectorAll('.mode-btn');
+    if (mode === 'cut') btns[0].classList.add('active');
+    else btns[1].classList.add('active');
+  }
+</script>
+</body>
+</html>
