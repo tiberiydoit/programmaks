@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Програма харчування для Макса</title>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -763,11 +763,78 @@
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
+  /* ── Вступний екран (без плану) ── */
+  .splash {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    text-align: center;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .splash.visible { display: flex; }
+
+  .splash-logo {
+    width: 80px; height: 80px;
+    border-radius: 24px;
+    background: rgba(232,255,71,0.1);
+    border: 1px solid rgba(232,255,71,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin-bottom: 28px;
+  }
+
+  .splash h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px; font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .splash p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 300px;
+    margin-bottom: 36px;
+  }
+
+  .splash-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,255,71,0.08);
+    border: 1px solid rgba(232,255,71,0.2);
+    border-radius: 100px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+  }
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- Вступний екран — показується якщо немає ?d= -->
+<div class="splash" id="splash">
+  <div class="splash-logo">🥗</div>
+  <h2>План харчування<br>ще готується</h2>
+  <p>Тренер вже працює над твоїм індивідуальним раціоном. Як тільки план буде готовий — ти отримаєш повідомлення в боті.</p>
+  <div class="splash-badge">
+    <span>⏳</span>
+    <span>Очікуй повідомлення</span>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
 
   <div class="header">
     <div class="tag">Система харчування · Сушка</div>
@@ -814,7 +881,7 @@
         </div>
         <div class="tap-hint">
           <div class="tap-arrow">→</div>
-          4 варіанти · натисни щоб переглянути
+          <span class="tap-hint-text">4 варіанти · натисни щоб переглянути</span>
         </div>
       </div>
 
@@ -834,7 +901,7 @@
         </div>
         <div class="tap-hint">
           <div class="tap-arrow">→</div>
-          3 варіанти · натисни щоб переглянути
+          <span class="tap-hint-text">3 варіанти · натисни щоб переглянути</span>
         </div>
       </div>
 
@@ -854,7 +921,7 @@
         </div>
         <div class="tap-hint">
           <div class="tap-arrow">→</div>
-          4 варіанти · натисни щоб переглянути
+          <span class="tap-hint-text">4 варіанти · натисни щоб переглянути</span>
         </div>
       </div>
 
@@ -1422,51 +1489,71 @@ const meals = {
 function buildVariantHTML(v) {
   const photoHTML = v.photo
     ? `<img src="${v.photo}" alt="${v.name}" loading="lazy">`
-    : `<div class="variant-photo-grad" style="background:${v.gradient}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji}</span></div>`;
-  const photoBg = v.photoBg || (v.gradient || 'transparent');
+    : `<div class="variant-photo-grad" style="background:${v.gradient || '#1c2330'}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji || '🍽️'}</span></div>`;
+  const photoBg = v.photoBg || v.gradient || '#1c2330';
 
-  const ingRows = v.ingredients.map(i => `
-    <tr>
-      <td>${i.name}</td>
-      <td>${i.p}</td>
-      <td>${i.f}</td>
-      <td>${i.c}</td>
-      <td>${i.kcal}</td>
-    </tr>
-  `).join('');
+  // Ingredients can be objects {name,p,f,c,kcal} or plain strings
+  let ingRows = '';
+  const hasStructured = v.ingredients && v.ingredients.length && typeof v.ingredients[0] === 'object';
+  if (hasStructured) {
+    ingRows = v.ingredients.map(i => `
+      <tr>
+        <td>${i.name}</td>
+        <td>${i.p}</td>
+        <td>${i.f}</td>
+        <td>${i.c}</td>
+        <td>${i.kcal}</td>
+      </tr>
+    `).join('');
+  } else if (v.ingredients && v.ingredients.length) {
+    ingRows = v.ingredients.map(i => `
+      <tr><td colspan="5" style="color:rgba(240,244,255,0.82)">${i}</td></tr>
+    `).join('');
+  }
 
-  const steps = v.steps.map(s => `<li>${s}</li>`).join('');
+  // Total row — shown only when we have full macros
+  const total = v.total || { p: v.p, f: v.f, c: v.c, kcal: v.kcal };
+  const tfoot = (total && (total.kcal || total.p)) ? `
+    <tfoot>
+      <tr>
+        <td>Разом</td>
+        ${hasStructured
+          ? `<td>${total.p}г</td><td>${total.f}г</td><td>${total.c}г</td><td>${total.kcal}</td>`
+          : `<td colspan="4" style="color:var(--accent)">${total.kcal} ккал | Б ${total.p}г Ж ${total.f}г В ${total.c}г</td>`
+        }
+      </tr>
+    </tfoot>` : '';
+
+  const thead = hasStructured
+    ? `<thead><tr><th>Продукт</th><th>Б</th><th>Ж</th><th>В</th><th>ккал</th></tr></thead>`
+    : `<thead><tr><th colspan="5">Інгредієнти</th></tr></thead>`;
+
+  const steps = (v.steps || []).map(s => `<li>${s}</li>`).join('');
   const noteHTML = v.note ? `<div class="recipe-note">${v.note}</div>` : '';
+  const hasRecipe = steps || noteHTML;
+
+  const id = v.id || ('v' + Math.random().toString(36).slice(2, 8));
 
   return `
-    <div class="variant-card" id="vc-${v.id}">
+    <div class="variant-card" id="vc-${id}">
       <div class="variant-layout">
         <div class="variant-photo" style="background:${photoBg}">${photoHTML}</div>
         <div class="variant-body">
           <div class="variant-name">${v.name}</div>
           <table class="ing-table">
-            <thead>
-              <tr><th>Продукт</th><th>Б</th><th>Ж</th><th>В</th><th>ккал</th></tr>
-            </thead>
+            ${thead}
             <tbody>${ingRows}</tbody>
-            <tfoot>
-              <tr>
-                <td>Разом</td>
-                <td>${v.total.p}г</td>
-                <td>${v.total.f}г</td>
-                <td>${v.total.c}г</td>
-                <td>${v.total.kcal}</td>
-              </tr>
-            </tfoot>
+            ${tfoot}
           </table>
-          <button class="recipe-toggle" onclick="toggleRecipe('${v.id}')">
+          ${hasRecipe ? `
+          <button class="recipe-toggle" onclick="toggleRecipe('${id}')">
             <span>Рецепт приготування</span>
             <span class="toggle-icon">▼</span>
           </button>
-          <div class="recipe-steps" id="rs-${v.id}">
+          <div class="recipe-steps" id="rs-${id}">
             <ol>${steps}</ol>
             ${noteHTML}
-          </div>
+          </div>` : ''}
         </div>
       </div>
     </div>
@@ -1483,7 +1570,13 @@ function openModal(key) {
 
   document.getElementById('modalTitle').textContent = meal.name;
   document.getElementById('modalTime').textContent = meal.time;
-  document.getElementById('modalTip').innerHTML = meal.tip;
+  const tipEl = document.getElementById('modalTip');
+  if (meal.tip) {
+    tipEl.innerHTML = meal.tip;
+    tipEl.style.display = '';
+  } else {
+    tipEl.style.display = 'none';
+  }
 
   document.getElementById('modalStrip').innerHTML = `
     <span class="mts p">Б ${meal.total.p}г</span>
@@ -1492,8 +1585,12 @@ function openModal(key) {
     <span class="mts k">${meal.total.kcal} ккал</span>
   `;
 
-  document.getElementById('modalVariants').innerHTML =
-    meal.variants.map(buildVariantHTML).join('');
+  const variantsEl = document.getElementById('modalVariants');
+  if (meal.variants && meal.variants.length) {
+    variantsEl.innerHTML = meal.variants.map(buildVariantHTML).join('');
+  } else {
+    variantsEl.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:8px 0">Варіанти ще не додані.</p>';
+  }
 
   const sheet = document.getElementById('modalSheet');
   sheet.scrollTop = 0;
@@ -1537,7 +1634,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
   let client;
   try {
-    client = JSON.parse(atob(param.replace(/-/g, '+').replace(/_/g, '/')));
+    const b64 = param.replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    client = JSON.parse(new TextDecoder('utf-8').decode(bytes));
   } catch (e) {
     console.warn('Failed to parse client data:', e);
     return;
@@ -1579,16 +1678,35 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     const cardClasses = ['breakfast', 'lunch', 'dinner', 'breakfast', 'lunch'];
     const grid = document.querySelector('.meals-grid');
 
+    // Build variant lookup: map meal name (normalised) → variants array from DB
+    const varLookup = {};
+    if (client.variants && typeof client.variants === 'object') {
+      // client.variants keys are Ukrainian meal type names: "сніданок", "обід", etc.
+      Object.assign(varLookup, client.variants);
+    }
+
+    function _normMealName(name) {
+      // "Сніданок" → "сніданок", "Обід №1" → "обід", "Перекус 1" → "перекус"
+      const n = name.toLowerCase().trim();
+      if (n.startsWith('сніданок')) return 'сніданок';
+      if (n.startsWith('обід'))    return 'обід';
+      if (n.startsWith('вечеря'))  return 'вечеря';
+      if (n.startsWith('перекус')) return 'перекус';
+      return n;
+    }
+
     client.meals.forEach((m, i) => {
       const key = keys[i] || ('meal' + i);
+      const mealTypeKey = _normMealName(m.name);
+      const dynVariants = varLookup[mealTypeKey] || [];
 
       // Update meals JS object so modal headers show correct values
       if (meals[key]) {
         meals[key].name  = m.name;
         meals[key].time  = m.time;
         meals[key].total = { kcal: m.kcal, p: m.p, f: m.f, c: m.c };
+        if (dynVariants.length) meals[key].variants = dynVariants;
       } else {
-        // Extra meal slot doesn't exist yet — add a minimal entry
         meals[key] = {
           name: m.name,
           time: m.time,
@@ -1596,14 +1714,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
           iconBg: 'rgba(232,255,71,0.1)',
           total: { kcal: m.kcal, p: m.p, f: m.f, c: m.c },
           tip: '',
-          variants: []
+          variants: dynVariants,
         };
       }
 
       // Find or create the card DOM node
       let card = grid.children[i];
       if (!card) {
-        // Create a new card for 4th/5th meals
         card = document.createElement('div');
         const cls = cardClasses[i] || 'breakfast';
         card.className = `meal-card ${cls}`;
@@ -1625,7 +1742,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
           </div>
           <div class="tap-hint">
             <div class="tap-arrow">→</div>
-            Натисни щоб переглянути
+            <span class="tap-hint-text">Натисни щоб переглянути</span>
           </div>`;
         grid.appendChild(card);
       }
@@ -1636,6 +1753,15 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
       card.querySelectorAll('.mms')[0].textContent = 'Б ' + m.p + 'г';
       card.querySelectorAll('.mms')[1].textContent = 'Ж ' + m.f + 'г';
       card.querySelectorAll('.mms')[2].textContent = 'В ' + m.c + 'г';
+
+      // Update variant count hint
+      const hintEl = card.querySelector('.tap-hint-text') || card.querySelector('.tap-hint');
+      if (hintEl) {
+        const cnt = meals[key].variants.length;
+        hintEl.textContent = cnt
+          ? `${cnt} ${cnt === 1 ? 'варіант' : cnt < 5 ? 'варіанти' : 'варіантів'} · натисни щоб переглянути`
+          : 'Натисни щоб переглянути';
+      }
     });
   }
 
@@ -1657,9 +1783,19 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   }
 })();
 
+// Показуємо splash якщо немає ?d= параметра
+(function checkPlan() {
+  const param = new URLSearchParams(location.search).get('d');
+  if (!param) {
+    document.getElementById('splash').classList.add('visible');
+    document.getElementById('mainContent').style.display = 'none';
+  }
+})();
+
 if (window.Telegram?.WebApp) {
   Telegram.WebApp.ready();
   Telegram.WebApp.expand();
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 }
 
 (function () {
