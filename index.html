@@ -1527,6 +1527,136 @@ function toggleFaq(id) {
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+// ── Dynamic client data loader ──────────────────────────────────────────────
+// Reads ?d= URL param (base64-encoded JSON from the bot), updates all
+// personalised fields: name, daily КБЖВ, meal cards, modal totals, steps.
+// FAQ answers are never touched.
+(function loadClientData() {
+  const param = new URLSearchParams(location.search).get('d');
+  if (!param) return;
+
+  let client;
+  try {
+    client = JSON.parse(atob(param.replace(/-/g, '+').replace(/_/g, '/')));
+  } catch (e) {
+    console.warn('Failed to parse client data:', e);
+    return;
+  }
+
+  // ── Name ──────────────────────────────────────────────────────────────────
+  if (client.name) {
+    document.querySelector('.header h1 span').textContent = client.name;
+    document.title = 'Програма харчування для ' + client.name;
+  }
+
+  // ── Daily summary pills ───────────────────────────────────────────────────
+  if (client.daily) {
+    const d = client.daily;
+    document.querySelector('.summary-pill.kcal .val').textContent = d.kcal;
+    document.querySelector('.summary-pill.prot .val').textContent = d.protein + 'г';
+    document.querySelector('.summary-pill.fat  .val').textContent = d.fat + 'г';
+    document.querySelector('.summary-pill.carb .val').textContent = d.carbs + 'г';
+
+    // Pie chart centre text (carbs)
+    const pieTexts = document.querySelectorAll('svg text');
+    if (pieTexts.length >= 1) pieTexts[0].textContent = d.carbs + 'г';
+    // Pie chart sub-label stays "вуглеводів" — no change needed
+
+    // 80/20 rule paragraph reference to carbs
+    const ruleP = document.querySelector('.rule-text p');
+    if (ruleP) {
+      ruleP.innerHTML = ruleP.innerHTML.replace(
+        /денна норма вуглеводів/,
+        'денна норма вуглеводів'
+      );
+    }
+  }
+
+  // ── Meal cards + meals JS object ──────────────────────────────────────────
+  if (client.meals && client.meals.length) {
+    const keys = ['breakfast', 'lunch', 'dinner', 'snack1', 'snack2'];
+    const icons = ['☀️', '⚡', '🌙', '🥗', '🍎'];
+    const cardClasses = ['breakfast', 'lunch', 'dinner', 'breakfast', 'lunch'];
+    const grid = document.querySelector('.meals-grid');
+
+    client.meals.forEach((m, i) => {
+      const key = keys[i] || ('meal' + i);
+
+      // Update meals JS object so modal headers show correct values
+      if (meals[key]) {
+        meals[key].name  = m.name;
+        meals[key].time  = m.time;
+        meals[key].total = { kcal: m.kcal, p: m.p, f: m.f, c: m.c };
+      } else {
+        // Extra meal slot doesn't exist yet — add a minimal entry
+        meals[key] = {
+          name: m.name,
+          time: m.time,
+          icon: icons[i] || '🍽️',
+          iconBg: 'rgba(232,255,71,0.1)',
+          total: { kcal: m.kcal, p: m.p, f: m.f, c: m.c },
+          tip: '',
+          variants: []
+        };
+      }
+
+      // Find or create the card DOM node
+      let card = grid.children[i];
+      if (!card) {
+        // Create a new card for 4th/5th meals
+        card = document.createElement('div');
+        const cls = cardClasses[i] || 'breakfast';
+        card.className = `meal-card ${cls}`;
+        card.setAttribute('onclick', `openModal('${key}')`);
+        card.style.animationDelay = (0.05 + i * 0.05) + 's';
+        card.innerHTML = `
+          <div class="meal-header">
+            <div class="meal-icon">${icons[i] || '🍽️'}</div>
+            <div class="meal-meta">
+              <h3></h3>
+              <div class="meal-time"></div>
+            </div>
+            <div class="meal-kcal-badge"></div>
+          </div>
+          <div class="meal-macro-strip">
+            <span class="mms p"></span>
+            <span class="mms f"></span>
+            <span class="mms c"></span>
+          </div>
+          <div class="tap-hint">
+            <div class="tap-arrow">→</div>
+            Натисни щоб переглянути
+          </div>`;
+        grid.appendChild(card);
+      }
+
+      card.querySelector('.meal-meta h3').textContent = m.name;
+      card.querySelector('.meal-time').textContent = m.time;
+      card.querySelector('.meal-kcal-badge').textContent = '~' + m.kcal + ' ккал';
+      card.querySelectorAll('.mms')[0].textContent = 'Б ' + m.p + 'г';
+      card.querySelectorAll('.mms')[1].textContent = 'Ж ' + m.f + 'г';
+      card.querySelectorAll('.mms')[2].textContent = 'В ' + m.c + 'г';
+    });
+  }
+
+  // ── Steps (principle #6) ──────────────────────────────────────────────────
+  if (client.steps) {
+    const cards = document.querySelectorAll('.principle-card');
+    cards.forEach(card => {
+      const h4 = card.querySelector('h4');
+      if (h4 && /кроків/.test(h4.textContent)) {
+        h4.textContent = client.steps.toLocaleString('uk') + ' кроків щодня';
+        const p = card.querySelector('p');
+        if (p) {
+          p.innerHTML = p.innerHTML
+            .replace(/\d[\s ]?\d{3}(?=\s*крок)/g, client.steps.toLocaleString('uk'))
+            .replace(/закриваємо \d+\s*кроків/g, 'закриваємо ' + client.steps.toLocaleString('uk') + ' кроків');
+        }
+      }
+    });
+  }
+})();
+
 if (window.Telegram?.WebApp) {
   Telegram.WebApp.ready();
   Telegram.WebApp.expand();
