@@ -400,7 +400,91 @@
   .rule-tag.green { background: rgba(107,203,119,0.1); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
   .rule-tag.yellow { background: rgba(232,255,71,0.1); border-color: rgba(232,255,71,0.25); color: var(--accent); }
 
-  .footer-note { margin-top: 52px; text-align: center; font-size: 12px; color: rgba(122,132,153,0.35); }
+  /* FAQ */
+  .faq-section { margin-bottom: 36px; animation: fadeUp 0.6s 0.5s ease both; }
+
+  .faq-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .faq-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .faq-item.open { border-color: rgba(232,255,71,0.18); }
+
+  .faq-question {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+
+  .faq-question:hover { background: rgba(255,255,255,0.03); }
+
+  .faq-q-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: rgba(232,255,71,0.08);
+    border: 1px solid rgba(232,255,71,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+
+  .faq-q-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .faq-chevron {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+  .faq-answer {
+    display: none;
+    padding: 0 20px 18px 68px;
+    font-size: 13px;
+    color: rgba(240,244,255,0.72);
+    line-height: 1.8;
+  }
+
+  .faq-answer.open { display: block; }
+
+  .faq-answer strong { color: var(--text); font-weight: 700; }
+  .faq-answer .faq-accent { color: var(--accent); font-weight: 700; }
+
+  .faq-answer ul {
+    margin-top: 10px;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .faq-answer ul li { font-size: 12px; color: rgba(240,244,255,0.65); }
+
+  @media (max-width: 480px) {
+    .faq-answer { padding-left: 20px; }
+  }
+
+  .footer-note { margin-top: 52px; text-align: center; font-size: 12px; color: rgba(122,132,153,0.35); line-height: 1.8; }
 
   /* ======== MODAL ======== */
   .modal-overlay {
@@ -908,7 +992,154 @@
     </div>
   </div>
 
-  <div class="footer-note">Зроблено для твого наставництва ✦</div>
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="section-title">Часті питання</div>
+    <div class="faq-list">
+
+      <div class="faq-item" id="faq-1">
+        <button class="faq-question" onclick="toggleFaq('faq-1')">
+          <div class="faq-q-icon">🔄</div>
+          <div class="faq-q-text">Чим можна замінити куряче філе?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-1">
+          Якщо білка в продукті стільки ж, як у курці — береш <strong>ту саму порцію</strong>. Замінити можна на:
+          <ul>
+            <li>індиче філе</li>
+            <li>свинина пісна</li>
+            <li>курячий або індичий фарш (до 2%)</li>
+            <li>кролятина</li>
+            <li>яловичина пісна</li>
+            <li>тунець</li>
+            <li>креветки, хек, тріска, минтай — <span class="faq-accent">в 1.2 рази більше</span></li>
+            <li>творог 0.5–1% жиру — <span class="faq-accent">в 1.4 рази більше</span>, але це крайній випадок</li>
+          </ul>
+          Якщо береш фарш до 10% жиру — та сама порція, але <strong>прибирай жири з вечері</strong> (арахісова паста, горіхи, авокадо), щоб не вийти за межу по калоріях.
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-2">
+        <button class="faq-question" onclick="toggleFaq('faq-2')">
+          <div class="faq-q-icon">🥩</div>
+          <div class="faq-q-text">Які джерела білка зараховуються?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-2">
+          Рахуємо <strong>тільки тваринний білок</strong>. Рослинний — не рахуємо, бо там нижчий вміст деяких амінокислот, і по факту він менш ефективний для цілей.
+          <ul>
+            <li><strong>М'ясо</strong> — яловичина, свинина, курятина, індичка, кролик</li>
+            <li><strong>Риба та морепродукти</strong> — лосось, тунець, креветки, кальмари</li>
+            <li><strong>Яйця</strong> — особливо яєчний білок</li>
+            <li><strong>Молочні продукти</strong> — молоко, сир, йогурт, кефір</li>
+            <li><strong>Субпродукти</strong> — печінка, нирки, серце</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-3">
+        <button class="faq-question" onclick="toggleFaq('faq-3')">
+          <div class="faq-q-icon">🌾</div>
+          <div class="faq-q-text">Яку крупу обрати і чи можна замінювати?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-3">
+          <strong>Будь-яку крупу можна замінювати на іншу</strong> — калорійність у них дуже схожа, тому вони повністю взаємозамінні. Бери ту саму порцію:
+          <ul>
+            <li>рис (будь-який вид)</li>
+            <li>гречка</li>
+            <li>булгур</li>
+            <li>макарони твердих сортів</li>
+            <li>кус-кус</li>
+            <li>вівсянка</li>
+            <li>кукурудзяні пластівці</li>
+            <li>фасоля / сочевиця / горох</li>
+          </ul>
+          Головне правило: <span class="faq-accent">70–80% вуглеводів — зі складних</span>, бо вони дають клітковину, вітаміни та мінерали. Прості — максимум 20%, і то якщо вписуються в калорії.
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-4">
+        <button class="faq-question" onclick="toggleFaq('faq-4')">
+          <div class="faq-q-icon">🥑</div>
+          <div class="faq-q-text">Які жири корисні, а яких уникати?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-4">
+          Акцент робимо на <strong>ненасичених жирах</strong> — вони підтримують здоров'я серця, гормони та загальне самопочуття:
+          <ul>
+            <li>жирна риба — лосось, тунець, скумбрія, оселедець</li>
+            <li>рослинні олії — оливкова, кунжутна, лляна, авокадова</li>
+            <li>горіхи та насіння — мигдаль, волоський горіх, фісташки, кеш'ю</li>
+            <li>авокадо, оливки</li>
+          </ul>
+          Насичені жири (молочка, м'ясо, жовтки) — <strong>можна, але помірно</strong>. Вони є у всьому, тому проблем із їх отриманням зазвичай немає.<br><br>
+          <span class="faq-accent">Трансжири — взагалі не беремо.</span> Дивишся етикетку: якщо є «гідрогенізований жир», «маргарин», «кондитерський жир» — кладеш назад на полицю.
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-5">
+        <button class="faq-question" onclick="toggleFaq('faq-5')">
+          <div class="faq-q-icon">🍳</div>
+          <div class="faq-q-text">Як правильно скласти сніданок?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-5">
+          Формула проста: <span class="faq-accent">Білок + Складні вуглеводи + Корисні жири</span>.<br><br>
+          <strong>1. Закриваєш ~20г білка</strong> — 2 яйця + 3–4 білки, або 30г протеїну, або 100г курячого філе, або 120г творогу.<br><br>
+          <strong>2. Додаєш будь-яку крупу</strong> — гречка, рис, вівсянка, булгур — що є, те й береш.<br><br>
+          <strong>3. Додаєш корисні жири</strong> — авокадо, горіхи, арахісова або мигдальна паста, трохи олії.<br><br>
+          За бажанням — овочі або фрукти зверху. Якщо в дорозі — молочний коктейль з ~20г білка, але перевіряй щоб не було багато цукру і жирів.
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-6">
+        <button class="faq-question" onclick="toggleFaq('faq-6')">
+          <div class="faq-q-icon">⚡</div>
+          <div class="faq-q-text">Що їсти на обід — головне правило?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-6">
+          Обід — найпростіший прийом. Завжди два елементи: <span class="faq-accent">Білок + Крупа</span>.<br><br>
+          М'ясо або риба — <strong>жирність до 5–6% максимум</strong>. Такі продукти легко рахувати і вони найкраще підходять для контролю форми. Курка, індичка, телятина, пісна яловичина, хек, тріска, тунець, креветки — все це ок.<br><br>
+          Будь-яку крупу — рис, гречка, макарони, булгур — додаєш до м'яса і все. Не потрібно нічого вигадувати.
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-7">
+        <button class="faq-question" onclick="toggleFaq('faq-7')">
+          <div class="faq-q-icon">🌙</div>
+          <div class="faq-q-text">Що їсти на вечерю?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-7">
+          Вечеря — це <span class="faq-accent">легкий білок + овочі</span>. Ніяких запар — взяв, відкрив, готово.<br><br>
+          <strong>Основний білок:</strong> творог 0.5–1.5% (база), тунець у власному соку, куряче філе або індичка, пісна риба. Білок ввечері дає ситість, мінімум калорій і добре засвоюється.<br><br>
+          <strong>Мінімум вуглеводів</strong> — максимум банан або трохи ягід. Овочі — без обмежень, будь-які.<br><br>
+          Можна міняти прийоми місцями — якщо ввечері інша ситуація, закриваєш творог в обід, а ввечері їси те що мав на обід. Система гнучка.
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-8">
+        <button class="faq-question" onclick="toggleFaq('faq-8')">
+          <div class="faq-q-icon">🍫</div>
+          <div class="faq-q-text">Чи можна їсти солодке і жирне?</div>
+          <span class="faq-chevron">▼</span>
+        </button>
+        <div class="faq-answer" id="ans-faq-8">
+          Можна — це і є <span class="faq-accent">правило 80/20</span>. 80% раціону — нормальна, якісна їжа. 20% — те місце, куди ти можеш вписати що завгодно: шоколад, піцу, морозиво.<br><br>
+          Головне — <strong>вписати в загальну норму калорій і не виходити за рамки</strong>. Білок тримаємо завжди. Просто вписуєш солодке в норму — без стресу і зривів.<br><br>
+          Якщо тримаєшся добре — можеш взагалі не використовувати ці 20%. Але якщо хочеться — вони є, і це не зрив.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Зроблено для твого наставництва ✦<br>
+    © 2025 Всі права захищені. Цей план харчування створено індивідуально та є інтелектуальною власністю автора. Копіювання, розповсюдження або використання без дозволу заборонено.
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -1283,6 +1514,14 @@ function toggleRecipe(id) {
   const steps = document.getElementById(`rs-${id}`);
   btn.classList.toggle('open');
   steps.classList.toggle('open');
+}
+
+function toggleFaq(id) {
+  const item = document.getElementById(id);
+  const ans = document.getElementById('ans-' + id);
+  const isOpen = item.classList.contains('open');
+  item.classList.toggle('open', !isOpen);
+  ans.classList.toggle('open', !isOpen);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
