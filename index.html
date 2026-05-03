@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Система харчування</title>
+<title>Програма харчування для Макса</title>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -11,15 +11,9 @@
     --card: #161b24;
     --card2: #1c2330;
     --accent: #e8ff47;
-    --accent2: #ff6b35;
-    --accent3: #4fc3f7;
     --text: #f0f4ff;
     --muted: #7a8499;
     --border: rgba(255,255,255,0.07);
-    --protein: #ff6b6b;
-    --carbs: #ffd93d;
-    --fat: #6bcb77;
-    --fiber: #4d96ff;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,13 +26,13 @@
     overflow-x: hidden;
   }
 
-  /* BG texture */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(232,255,71,0.04) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,107,53,0.05) 0%, transparent 60%);
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(232,255,71,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,107,53,0.05) 0%, transparent 60%);
     pointer-events: none;
     z-index: 0;
   }
@@ -46,7 +40,7 @@
   .container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 32px 20px 60px;
+    padding: 32px 20px 80px;
     position: relative;
     z-index: 1;
   }
@@ -74,84 +68,109 @@
 
   .header h1 {
     font-family: 'Unbounded', sans-serif;
-    font-size: clamp(24px, 5vw, 40px);
+    font-size: clamp(22px, 5vw, 38px);
     font-weight: 900;
     line-height: 1.1;
     letter-spacing: -1px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
   }
 
   .header h1 span { color: var(--accent); }
 
   .header p {
     color: var(--muted);
-    font-size: 15px;
-    max-width: 480px;
+    font-size: 14px;
+    max-width: 520px;
     margin: 0 auto;
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
-  /* MODE TOGGLE */
-  .mode-toggle {
+  /* DAILY SUMMARY */
+  .daily-summary {
     display: flex;
-    background: var(--card);
-    border-radius: 16px;
-    padding: 6px;
-    gap: 6px;
-    margin-bottom: 36px;
-    border: 1px solid var(--border);
-    animation: fadeUp 0.6s 0.1s ease both;
+    gap: 10px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.05s ease both;
   }
 
-  .mode-btn {
+  .summary-pill {
     flex: 1;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
+    min-width: 80px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .summary-pill .val {
     font-family: 'Unbounded', sans-serif;
-    font-size: 13px;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+
+  .summary-pill .lbl {
+    font-size: 10px;
     font-weight: 700;
-    transition: all 0.3s ease;
-    background: transparent;
+    letter-spacing: 1px;
+    text-transform: uppercase;
     color: var(--muted);
-    position: relative;
-    overflow: hidden;
   }
 
-  .mode-btn.active {
-    background: var(--accent);
-    color: #0d0f14;
+  .summary-pill.kcal .val { color: var(--accent); }
+  .summary-pill.prot .val { color: #ff8f8f; }
+  .summary-pill.fat  .val { color: #6bcb77; }
+  .summary-pill.carb .val { color: #ffd93d; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
 
-  .mode-btn.active.mass {
-    background: var(--accent2);
-    color: #fff;
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
   }
 
-  .mode-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
-
-  /* MEALS GRID */
-  .meals-grid {
-    display: grid;
-    gap: 16px;
-    animation: fadeUp 0.6s 0.2s ease both;
-  }
+  /* MEAL CARDS */
+  .meals-section { margin-bottom: 36px; animation: fadeUp 0.6s 0.1s ease both; }
+  .meals-grid { display: grid; gap: 12px; }
 
   .meal-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 24px;
+    padding: 20px 22px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    user-select: none;
+    animation: fadeUp 0.5s ease both;
   }
 
   .meal-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     border-color: rgba(255,255,255,0.14);
+    box-shadow: 0 14px 44px rgba(0,0,0,0.32);
   }
+
+  .meal-card:active { transform: translateY(-1px); }
 
   .meal-card::before {
     content: '';
@@ -162,663 +181,1121 @@
   }
 
   .meal-card.breakfast::before { background: linear-gradient(90deg, #ffd93d, #ff6b35); }
-  .meal-card.lunch::before { background: linear-gradient(90deg, #ff6b6b, #e8ff47); }
-  .meal-card.dinner::before { background: linear-gradient(90deg, #4fc3f7, #6bcb77); }
-  .meal-card.snack::before { background: linear-gradient(90deg, #a78bfa, #4fc3f7); }
+  .meal-card.lunch::before    { background: linear-gradient(90deg, #ff6b6b, #e8ff47); }
+  .meal-card.dinner::before   { background: linear-gradient(90deg, #4fc3f7, #6bcb77); }
 
   .meal-header {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
   }
 
   .meal-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
+    width: 50px; height: 50px;
+    border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
   }
 
   .breakfast .meal-icon { background: rgba(255,217,61,0.15); }
-  .lunch .meal-icon { background: rgba(255,107,107,0.15); }
-  .dinner .meal-icon { background: rgba(79,195,247,0.15); }
-  .snack .meal-icon { background: rgba(167,139,250,0.15); }
+  .lunch .meal-icon     { background: rgba(255,107,107,0.15); }
+  .dinner .meal-icon    { background: rgba(79,195,247,0.15); }
+
+  .meal-meta { flex: 1; }
 
   .meal-meta h3 {
     font-family: 'Unbounded', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 3px;
+    font-size: 14px; font-weight: 700; margin-bottom: 3px;
   }
 
-  .meal-time {
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 500;
-  }
+  .meal-time { font-size: 12px; color: var(--muted); font-weight: 500; }
 
-  .meal-purpose {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 3px 10px;
-    border-radius: 100px;
-    margin-left: auto;
+  .meal-kcal-badge {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px; font-weight: 900;
+    color: var(--accent);
     flex-shrink: 0;
   }
 
-  .breakfast .meal-purpose { background: rgba(255,217,61,0.15); color: #ffd93d; }
-  .lunch .meal-purpose { background: rgba(255,107,107,0.15); color: #ff6b6b; }
-  .dinner .meal-purpose { background: rgba(79,195,247,0.15); color: #4fc3f7; }
-  .snack .meal-purpose { background: rgba(167,139,250,0.15); color: #a78bfa; }
-
-  /* MACRO PILLS */
-  .macro-row {
+  .meal-macro-strip {
     display: flex;
-    gap: 8px;
-    margin-bottom: 18px;
+    gap: 6px;
     flex-wrap: wrap;
+    margin-bottom: 14px;
   }
 
-  .macro-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
+  .mms {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px;
     border-radius: 100px;
-    font-size: 12px;
-    font-weight: 600;
     border: 1px solid;
   }
 
-  .macro-pill.protein { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); color: #ff8f8f; }
-  .macro-pill.carbs { background: rgba(255,217,61,0.1); border-color: rgba(255,217,61,0.3); color: #ffd93d; }
-  .macro-pill.fat { background: rgba(107,203,119,0.1); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
-  .macro-pill.fiber { background: rgba(77,150,255,0.1); border-color: rgba(77,150,255,0.3); color: #4d96ff; }
+  .mms.p { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); color: #ff8f8f; }
+  .mms.f { background: rgba(107,203,119,0.1); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
+  .mms.c { background: rgba(255,217,61,0.1);  border-color: rgba(255,217,61,0.3);  color: #ffd93d; }
 
-  .macro-dot {
-    width: 7px; height: 7px;
+  .tap-hint {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    padding-top: 14px; border-top: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+
+  .meal-card:hover .tap-hint { color: var(--accent); }
+
+  .tap-arrow {
+    width: 26px; height: 26px;
     border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .protein .macro-dot { background: #ff6b6b; }
-  .carbs .macro-dot { background: #ffd93d; }
-  .fat .macro-dot { background: #6bcb77; }
-  .fiber .macro-dot { background: #4d96ff; }
-
-  /* FOOD EXAMPLES */
-  .food-section label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: block;
-    margin-bottom: 10px;
+    background: rgba(232,255,71,0.08);
+    border: 1px solid rgba(232,255,71,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
   }
 
-  .food-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 8px;
+  .meal-card:hover .tap-arrow {
+    background: rgba(232,255,71,0.18);
+    transform: translateX(4px);
   }
 
-  .food-item {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s;
-    cursor: default;
-  }
+  /* TIMING */
+  .timing-section { margin-bottom: 36px; animation: fadeUp 0.6s 0.2s ease both; }
 
-  .food-item:hover { background: rgba(255,255,255,0.06); }
-  .food-item .fi { font-size: 16px; }
-
-  /* WHY BLOCK */
-  .why-block {
-    margin-top: 18px;
-    padding: 14px 16px;
-    background: rgba(232,255,71,0.05);
-    border: 1px solid rgba(232,255,71,0.12);
-    border-radius: 12px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: rgba(240,244,255,0.8);
-  }
-
-  .why-block strong {
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  /* VISUAL PLATE */
-  .plate-section {
-    margin-top: 36px;
-    animation: fadeUp 0.6s 0.3s ease both;
-  }
-
-  .section-title {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .plate-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-
-  @media (max-width: 600px) {
-    .plate-cards { grid-template-columns: 1fr; }
-  }
-
-  .plate-card {
+  .timing-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    transition: transform 0.2s;
+    border-radius: 20px;
+    padding: 22px 24px;
+    display: flex; gap: 18px; align-items: flex-start;
   }
 
-  .plate-card:hover { transform: translateY(-3px); }
+  .timing-icon { font-size: 34px; flex-shrink: 0; line-height: 1; }
 
-  .plate-visual {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin: 0 auto 14px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-  }
-
-  .plate-card h4 {
+  .timing-content h3 {
     font-family: 'Unbounded', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 8px; color: var(--accent);
   }
 
-  .plate-card p {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
+  .timing-content p {
+    font-size: 13px;
+    color: rgba(240,244,255,0.72);
+    line-height: 1.75;
   }
 
-  /* SVG PLATE */
-  .svg-plate {
-    width: 80px;
-    height: 80px;
-  }
+  .timing-content p strong { color: var(--text); font-weight: 600; }
 
-  /* RULES BLOCK */
-  .rules-section {
-    margin-top: 36px;
-    animation: fadeUp 0.6s 0.4s ease both;
-  }
+  /* PRINCIPLES */
+  .principles-section { margin-bottom: 36px; animation: fadeUp 0.6s 0.3s ease both; }
 
-  .rules-grid {
+  .principles-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
 
-  @media (max-width: 500px) {
-    .rules-grid { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 520px) { .principles-grid { grid-template-columns: 1fr; } }
 
-  .rule-card {
+  .principle-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 18px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    transition: transform 0.2s;
+    display: flex; gap: 12px; align-items: flex-start;
+    transition: transform 0.2s ease;
   }
 
-  .rule-card:hover { transform: translateY(-2px); }
+  .principle-card:hover { transform: translateY(-2px); }
 
-  .rule-num {
+  .principle-num {
     font-family: 'Unbounded', sans-serif;
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 1;
+    font-size: 20px; font-weight: 900;
+    color: var(--accent); line-height: 1;
+    flex-shrink: 0; opacity: 0.28; min-width: 28px;
+  }
+
+  .principle-card h4 { font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+  .principle-card p  { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+  /* 80/20 SECTION */
+  .rule-section { animation: fadeUp 0.6s 0.4s ease both; }
+
+  .rule-main-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .pie-wrap {
     flex-shrink: 0;
-    opacity: 0.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
   }
 
-  .rule-card h4 {
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 5px;
+  .pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .rule-card p {
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
+    font-weight: 600;
+    color: rgba(240,244,255,0.8);
   }
 
-  /* HIDDEN CONTENT */
-  .mode-content { display: none; }
-  .mode-content.active { display: block; }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
 
-  /* ANIMATIONS */
+  .rule-text { flex: 1; min-width: 200px; }
+
+  .rule-text h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px; font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .rule-text p {
+    font-size: 13px;
+    color: rgba(240,244,255,0.72);
+    line-height: 1.75;
+    margin-bottom: 12px;
+  }
+
+  .rule-text p:last-child { margin-bottom: 0; }
+
+  .rule-text strong { color: var(--accent); font-weight: 700; }
+
+  .rule-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 14px;
+  }
+
+  .rule-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 100px;
+    border: 1px solid;
+  }
+
+  .rule-tag.green { background: rgba(107,203,119,0.1); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
+  .rule-tag.yellow { background: rgba(232,255,71,0.1); border-color: rgba(232,255,71,0.25); color: var(--accent); }
+
+  .footer-note { margin-top: 52px; text-align: center; font-size: 12px; color: rgba(122,132,153,0.35); }
+
+  /* ======== MODAL ======== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.68);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 1000;
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal-sheet {
+    background: var(--card);
+    border-radius: 28px 28px 0 0;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-bottom: none;
+    width: 100%; max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 48px;
+    transform: translateY(60px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.22, 0.64, 1);
+  }
+
+  .modal-sheet::-webkit-scrollbar { width: 4px; }
+  .modal-sheet::-webkit-scrollbar-track { background: transparent; }
+  .modal-sheet::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .modal-overlay.open .modal-sheet { transform: translateY(0); }
+
+  @media (min-width: 700px) {
+    .modal-overlay { align-items: center; }
+    .modal-sheet { border-radius: 28px; border: 1px solid rgba(255,255,255,0.09); max-height: 84vh; }
+  }
+
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px; margin: 14px auto 0;
+  }
+
+  @media (min-width: 700px) { .modal-handle { display: none; } }
+
+  .modal-header {
+    padding: 20px 24px 18px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-meal-icon {
+    width: 52px; height: 52px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+
+  .modal-meal-info { flex: 1; }
+
+  .modal-meal-info h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 17px; font-weight: 700; margin-bottom: 3px;
+  }
+
+  .modal-meal-info .modal-time { font-size: 12px; color: var(--muted); }
+
+  .modal-total-strip {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+
+  .mts {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 100px; border: 1px solid;
+  }
+
+  .mts.p { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); color: #ff8f8f; }
+  .mts.f { background: rgba(107,203,119,0.1); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
+  .mts.c { background: rgba(255,217,61,0.1);  border-color: rgba(255,217,61,0.3);  color: #ffd93d; }
+  .mts.k { background: rgba(232,255,71,0.1);  border-color: rgba(232,255,71,0.2);  color: var(--accent); }
+
+  .modal-close {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    color: var(--muted); font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s; flex-shrink: 0;
+  }
+
+  .modal-close:hover { background: rgba(255,255,255,0.13); color: var(--text); }
+
+  .modal-tip {
+    margin: 14px 24px 0;
+    padding: 12px 15px;
+    background: rgba(232,255,71,0.05);
+    border: 1px solid rgba(232,255,71,0.12);
+    border-radius: 12px;
+    font-size: 13px; line-height: 1.65;
+    color: rgba(240,244,255,0.75);
+  }
+
+  .modal-tip strong { color: var(--accent); }
+
+  .modal-variants-label {
+    padding: 18px 24px 12px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
+  }
+
+  .modal-variants {
+    display: flex; flex-direction: column;
+    gap: 14px; padding: 0 24px;
+  }
+
+  @media (max-width: 480px) {
+    .modal-header { padding: 16px 18px 14px; }
+    .modal-tip { margin: 12px 18px 0; }
+    .modal-variants { padding: 0 18px; }
+    .modal-variants-label { padding: 16px 18px 10px; }
+  }
+
+  /* VARIANT CARD */
+  .variant-card {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .variant-layout { display: flex; }
+
+  .variant-photo {
+    width: 200px;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 10px;
+    min-height: 160px;
+  }
+
+  .variant-photo img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.45));
+  }
+
+  .variant-photo-grad {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    min-height: 160px;
+  }
+
+  .variant-body {
+    flex: 1;
+    padding: 16px 16px 14px;
+    min-width: 0;
+  }
+
+  @media (max-width: 560px) {
+    .variant-layout { flex-direction: column; }
+    .variant-photo { width: 100%; padding: 20px 24px 12px; min-height: unset; }
+    .variant-photo img { max-height: 180px; }
+    .variant-photo-grad { min-height: 160px; }
+  }
+
+  .variant-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 12px; line-height: 1.4;
+  }
+
+  .ing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
+
+  .ing-table th {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 6px 6px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .ing-table th:first-child { text-align: left; }
+  .ing-table th:not(:first-child) { text-align: center; }
+
+  .ing-table td {
+    padding: 5px 6px;
+    font-size: 12px;
+    color: rgba(240,244,255,0.82);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .ing-table td:not(:first-child) { text-align: center; color: var(--muted); }
+
+  .ing-table tfoot td {
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--accent);
+    border-top: 1px solid rgba(232,255,71,0.18);
+    border-bottom: none;
+    padding-top: 7px;
+  }
+
+  .ing-table tfoot td:not(:first-child) { color: var(--accent); }
+
+  .recipe-toggle {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 13px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.2s;
+    text-align: left;
+  }
+
+  .recipe-toggle:hover { background: rgba(255,255,255,0.08); }
+
+  .toggle-icon {
+    font-size: 10px; color: var(--muted);
+    transition: transform 0.25s ease;
+    display: inline-block; flex-shrink: 0; margin-left: 8px;
+  }
+
+  .recipe-toggle.open .toggle-icon { transform: rotate(180deg); }
+
+  .recipe-steps { display: none; padding: 12px 4px 2px; }
+  .recipe-steps.open { display: block; }
+
+  .recipe-steps ol {
+    padding-left: 18px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+
+  .recipe-steps ol li {
+    font-size: 12px;
+    color: rgba(240,244,255,0.78);
+    line-height: 1.65;
+  }
+
+  .recipe-steps .recipe-note {
+    margin-top: 10px;
+    padding: 9px 12px;
+    background: rgba(232,255,71,0.05);
+    border-left: 2px solid rgba(232,255,71,0.3);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: rgba(240,244,255,0.65);
+    line-height: 1.6;
+  }
+
   @keyframes fadeDown {
     from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .meal-card {
-    animation: fadeUp 0.5s ease both;
-  }
-
-  /* FOOTER TAG */
-  .footer-note {
-    margin-top: 48px;
-    text-align: center;
-    font-size: 12px;
-    color: rgba(122,132,153,0.5);
+    to   { opacity: 1; transform: translateY(0); }
   }
 </style>
 </head>
 <body>
+
 <div class="container">
 
-  <!-- HEADER -->
   <div class="header">
-    <div class="tag">Система харчування</div>
-    <h1>Їжа як <span>інструмент</span><br>а не як покарання</h1>
-    <p>Три прийоми їжі — три задачі. Зрозумій логіку і дотримання стане автоматичним.</p>
+    <div class="tag">Система харчування · Сушка</div>
+    <h1>Програма харчування<br>для <span>Макса</span></h1>
+    <p>Найголовніше — це зрозуміти логіку, і ти будеш дотримуватися цього набагато легше. Якщо не можеш дотримуватися чітко — починай рахувати калорії і просто тримай показники, які бачиш знизу.</p>
   </div>
 
-  <!-- MODE TOGGLE -->
-  <div class="mode-toggle">
-    <button class="mode-btn active" onclick="setMode('cut')">
-      <span class="icon">🔥</span>
-      СУШКА / РЕЛЬЄФ
-    </button>
-    <button class="mode-btn mass" onclick="setMode('mass')">
-      <span class="icon">💪</span>
-      НАБІР МАСИ
-    </button>
+  <div class="daily-summary">
+    <div class="summary-pill kcal">
+      <div class="val">2160</div>
+      <div class="lbl">ккал / день</div>
+    </div>
+    <div class="summary-pill prot">
+      <div class="val">181г</div>
+      <div class="lbl">Білок</div>
+    </div>
+    <div class="summary-pill fat">
+      <div class="val">75г</div>
+      <div class="lbl">Жири</div>
+    </div>
+    <div class="summary-pill carb">
+      <div class="val">191г</div>
+      <div class="lbl">Вуглеводи</div>
+    </div>
   </div>
 
-  <!-- ===== СУШКА ===== -->
-  <div class="mode-content active" id="cut">
+  <div class="meals-section">
+    <div class="section-title">Прийоми їжі</div>
     <div class="meals-grid">
 
-      <!-- СНІДАНОК -->
-      <div class="meal-card breakfast" style="animation-delay:0.05s">
+      <div class="meal-card breakfast" onclick="openModal('breakfast')" style="animation-delay:0.05s">
         <div class="meal-header">
           <div class="meal-icon">☀️</div>
           <div class="meal-meta">
             <h3>Сніданок</h3>
-            <div class="meal-time">07:00 — 09:00</div>
+            <div class="meal-time">09:00 – 10:00</div>
           </div>
-          <div class="meal-purpose">ПАЛИВО</div>
+          <div class="meal-kcal-badge">~735 ккал</div>
         </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
-          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи</div>
+        <div class="meal-macro-strip">
+          <span class="mms p">Б 52г</span>
+          <span class="mms f">Ж 23г</span>
+          <span class="mms c">В 81г</span>
         </div>
-        <div class="food-section">
-          <label>Білок — обери один</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🥚</span>Омлет / яйця</div>
-            <div class="food-item"><span class="fi">🥤</span>Протеїн</div>
-            <div class="food-item"><span class="fi">🐔</span>Куряча грудка</div>
-          </div>
-        </div>
-        <div class="food-section" style="margin-top:12px">
-          <label>Вуглеводи — обери один</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🌾</span>Вівсянка</div>
-            <div class="food-item"><span class="fi">🍚</span>Рис</div>
-            <div class="food-item"><span class="fi">🫘</span>Гречка</div>
-            <div class="food-item"><span class="fi">🫓</span>Цільнозерновий хліб</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Чому?</strong> Після сну глікоген в м'язах знижений. Вуглеводи зарядять тебе енергією на першу половину дня. Білок зупинить катаболізм і дасть ситість.
+        <div class="tap-hint">
+          <div class="tap-arrow">→</div>
+          4 варіанти · натисни щоб переглянути
         </div>
       </div>
 
-      <!-- ОБІД -->
-      <div class="meal-card lunch" style="animation-delay:0.1s">
+      <div class="meal-card lunch" onclick="openModal('lunch')" style="animation-delay:0.10s">
         <div class="meal-header">
           <div class="meal-icon">⚡</div>
           <div class="meal-meta">
             <h3>Обід</h3>
-            <div class="meal-time">12:00 — 14:00</div>
+            <div class="meal-time">13:00 – 15:00</div>
           </div>
-          <div class="meal-purpose">БУДІВНИЦТВО</div>
+          <div class="meal-kcal-badge">~720 ккал</div>
         </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
-          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи</div>
-          <div class="macro-pill fiber"><div class="macro-dot"></div>Клітковина</div>
+        <div class="meal-macro-strip">
+          <span class="mms p">Б 63г</span>
+          <span class="mms f">Ж 14г</span>
+          <span class="mms c">В 77г</span>
         </div>
-        <div class="food-section">
-          <label>М'ясо — обери один</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🐔</span>Курка</div>
-            <div class="food-item"><span class="fi">🥩</span>Яловичина</div>
-            <div class="food-item"><span class="fi">🐟</span>Риба</div>
-            <div class="food-item"><span class="fi">🦃</span>Індичка</div>
-          </div>
-        </div>
-        <div class="food-section" style="margin-top:12px">
-          <label>Гарнір + овочі</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🍚</span>Рис / гречка</div>
-            <div class="food-item"><span class="fi">🥦</span>Броколі</div>
-            <div class="food-item"><span class="fi">🥗</span>Салат</div>
-            <div class="food-item"><span class="fi">🫑</span>Перець</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Чому?</strong> Пік активності — пік їжі. Великий прийом білку + вуглеводів у середині дня дає максимальний анаболічний відгук і не відкладається в жир.
+        <div class="tap-hint">
+          <div class="tap-arrow">→</div>
+          3 варіанти · натисни щоб переглянути
         </div>
       </div>
 
-      <!-- ВЕЧЕРЯ -->
-      <div class="meal-card dinner" style="animation-delay:0.15s">
+      <div class="meal-card dinner" onclick="openModal('dinner')" style="animation-delay:0.15s">
         <div class="meal-header">
           <div class="meal-icon">🌙</div>
           <div class="meal-meta">
             <h3>Вечеря</h3>
-            <div class="meal-time">18:00 — 20:00</div>
+            <div class="meal-time">19:00 – 21:00</div>
           </div>
-          <div class="meal-purpose">ВІДНОВЛЕННЯ</div>
+          <div class="meal-kcal-badge">~520 ккал</div>
         </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Тільки білок</div>
-          <div class="macro-pill fiber"><div class="macro-dot"></div>Клітковина</div>
+        <div class="meal-macro-strip">
+          <span class="mms p">Б 61г</span>
+          <span class="mms f">Ж 22г</span>
+          <span class="mms c">В 22г</span>
         </div>
-        <div class="food-section">
-          <label>Повільний білок — обери один</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🧀</span>Творог 0-5%</div>
-            <div class="food-item"><span class="fi">🥚</span>Білки яєць</div>
-            <div class="food-item"><span class="fi">🐟</span>Риба на пару</div>
-            <div class="food-item"><span class="fi">🍗</span>Куряча грудка</div>
-          </div>
+        <div class="tap-hint">
+          <div class="tap-arrow">→</div>
+          4 варіанти · натисни щоб переглянути
         </div>
-        <div class="food-section" style="margin-top:12px">
-          <label>Додатково</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🥒</span>Огірки</div>
-            <div class="food-item"><span class="fi">🥬</span>Листова зелень</div>
-            <div class="food-item"><span class="fi">🍅</span>Томати</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Чому?</strong> Вночі гормон росту працює на максимумі. Творог = казеїновий білок = повільне засвоєння 6-8 годин. Годуємо м'язи поки спимо. Без вуглеводів — немає стрибка інсуліну = жироспалювання вночі.
-        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="timing-section">
+    <div class="section-title">Таймінг</div>
+    <div class="timing-card">
+      <div class="timing-icon">⏰</div>
+      <div class="timing-content">
+        <h3>Старайся їсти за розкладом — не чекай голоду</h3>
+        <p>
+          Твій організм звикне до рамок і дуже добре адаптується. Кожні <strong>3–4 години</strong> — прийом їжі. Сніданок трохи пізніше, щоб змістити вікна прийомів — і потім не будеш голодним протягом дня коли треба найбільше енергії. Одразу після підйому — <strong>1–2 склянки води.</strong>
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- ===== НАБІР ===== -->
-  <div class="mode-content" id="mass">
-    <div class="meals-grid">
+  <div class="principles-section">
+    <div class="section-title">Мої принципи</div>
+    <div class="principles-grid">
 
-      <!-- СНІДАНОК -->
-      <div class="meal-card breakfast" style="animation-delay:0.05s">
-        <div class="meal-header">
-          <div class="meal-icon">☀️</div>
-          <div class="meal-meta">
-            <h3>Сніданок</h3>
-            <div class="meal-time">07:00 — 09:00</div>
-          </div>
-          <div class="meal-purpose">ПАЛИВО</div>
-        </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
-          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи ↑</div>
-        </div>
-        <div class="food-section">
-          <label>Великий сніданок</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🥚</span>3-4 яйця</div>
-            <div class="food-item"><span class="fi">🌾</span>Вівсянка 100г</div>
-            <div class="food-item"><span class="fi">🍌</span>Банан</div>
-            <div class="food-item"><span class="fi">🍯</span>Мед / горіхи</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Набір:</strong> Ранок — максимальна чутливість до інсуліну. Більше вуглеводів = кращий транспорт нутрієнтів у м'язи. Не бійся калорій зранку — вони підуть у роботу.
+      <div class="principle-card">
+        <div class="principle-num">01</div>
+        <div>
+          <h4>Калорії + білок рулять</h4>
+          <p>Саме калорії вирішують куди рухається твоє тіло — худнеш чи набираєш, адже білок зберігає м'язи при дефіциті і дає відчуття ситості. Тому тримай обидва пункти — це основа.</p>
         </div>
       </div>
 
-      <!-- ПЕРЕКУС -->
-      <div class="meal-card snack" style="animation-delay:0.08s">
-        <div class="meal-header">
-          <div class="meal-icon">⚡</div>
-          <div class="meal-meta">
-            <h3>Перекус 1</h3>
-            <div class="meal-time">10:30 — 11:30</div>
-          </div>
-          <div class="meal-purpose">ПІДЖИВЛЕННЯ</div>
-        </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Білок</div>
-          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи</div>
-        </div>
-        <div class="food-section">
-          <label>Швидкий перекус</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🥤</span>Протеїновий коктейль</div>
-            <div class="food-item"><span class="fi">🍌</span>Фрукт</div>
-            <div class="food-item"><span class="fi">🫘</span>Горіхи жменя</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Чому?</strong> На наборі між прийомами їжі не повинно бути провалів в амінокислотах. Підтримуємо анаболічне вікно протягом всього дня.
+      <div class="principle-card">
+        <div class="principle-num">02</div>
+        <div>
+          <h4>Три прийоми — структура</h4>
+          <p>Перші два: вуглеводи + білок. Один завжди без вуглеводів. Можна міняти місцями — але завжди дотримуйся структури.</p>
         </div>
       </div>
 
-      <!-- ОБІД -->
-      <div class="meal-card lunch" style="animation-delay:0.11s">
-        <div class="meal-header">
-          <div class="meal-icon">🍽️</div>
-          <div class="meal-meta">
-            <h3>Обід</h3>
-            <div class="meal-time">13:00 — 14:30</div>
-          </div>
-          <div class="meal-purpose">ОСНОВНИЙ ПРИЙОМ</div>
-        </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Білок ↑↑</div>
-          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи ↑↑</div>
-          <div class="macro-pill fat"><div class="macro-dot"></div>Жири</div>
-        </div>
-        <div class="food-section">
-          <label>Великий обід — основа дня</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🥩</span>М'ясо 200-250г</div>
-            <div class="food-item"><span class="fi">🍚</span>Рис 150г</div>
-            <div class="food-item"><span class="fi">🥦</span>Овочі</div>
-            <div class="food-item"><span class="fi">🫒</span>Оливкова олія</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Чому?</strong> Головний прийом дня. Тут максимум калорій і нутрієнтів. Жири допомагають засвоєнню жиророзчинних вітамінів і дають додаткові калорії для росту.
+      <div class="principle-card">
+        <div class="principle-num">03</div>
+        <div>
+          <h4>Правило 80 / 20</h4>
+          <p>80% раціону — нормальна, якісна їжа яку бачиш тут. Якщо тримаєшся добре — їж лише її. Коли хочеться іншого — включай правило: цукор, жирне, фастфуд не заборонені, просто тримай у межах 20%. Але білок і калорії — завжди. Ти просто вписуєш солодке у норму, без стресу і зривів.</p>
         </div>
       </div>
 
-      <!-- ВЕЧЕРЯ -->
-      <div class="meal-card dinner" style="animation-delay:0.14s">
-        <div class="meal-header">
-          <div class="meal-icon">🌙</div>
-          <div class="meal-meta">
-            <h3>Вечеря</h3>
-            <div class="meal-time">19:00 — 20:30</div>
-          </div>
-          <div class="meal-purpose">РІС ВНОЧІ</div>
-        </div>
-        <div class="macro-row">
-          <div class="macro-pill protein"><div class="macro-dot"></div>Білок ↑</div>
-          <div class="macro-pill carbs"><div class="macro-dot"></div>Вуглеводи (помірно)</div>
-        </div>
-        <div class="food-section">
-          <label>Вечеря на масі</label>
-          <div class="food-grid">
-            <div class="food-item"><span class="fi">🧀</span>Творог</div>
-            <div class="food-item"><span class="fi">🍗</span>Куряча грудка</div>
-            <div class="food-item"><span class="fi">🍚</span>Невелика порція рису</div>
-            <div class="food-item"><span class="fi">🥗</span>Овочі</div>
-          </div>
-        </div>
-        <div class="why-block">
-          <strong>Чому?</strong> На наборі вночі теж потрібне паливо. Невелика кількість вуглеводів перед сном підтримує рівень глікогену і покращує якість сну і відновлення.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ТАРІЛКА -->
-  <div class="plate-section">
-    <div class="section-title">Метод тарілки — просто запам'ятай</div>
-    <div class="plate-cards">
-      <div class="plate-card">
-        <svg class="svg-plate" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="36" fill="#1c2330" stroke="#2a3346" stroke-width="2"/>
-          <!-- half protein -->
-          <path d="M40,40 L40,4 A36,36 0 0,1 76,40 Z" fill="rgba(255,107,107,0.35)"/>
-          <path d="M40,40 L76,40 A36,36 0 0,1 40,76 Z" fill="rgba(255,107,107,0.2)"/>
-          <!-- quarter carbs -->
-          <path d="M40,40 L40,4 A36,36 0 0,0 4,40 Z" fill="rgba(255,217,61,0.35)"/>
-          <!-- quarter fiber -->
-          <path d="M40,40 L4,40 A36,36 0 0,0 40,76 Z" fill="rgba(77,150,255,0.35)"/>
-          <circle cx="40" cy="40" r="10" fill="#161b24" stroke="#2a3346" stroke-width="1.5"/>
-          <text x="40" y="44" text-anchor="middle" font-size="12" fill="#fff">🍽️</text>
-        </svg>
-        <h4>СУШКА</h4>
-        <p>½ білок · ¼ вуглеводи · ¼ клітковина</p>
-      </div>
-      <div class="plate-card">
-        <svg class="svg-plate" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="36" fill="#1c2330" stroke="#2a3346" stroke-width="2"/>
-          <path d="M40,40 L40,4 A36,36 0 0,1 76,40 Z" fill="rgba(255,107,107,0.35)"/>
-          <path d="M40,40 L76,40 A36,36 0 0,1 59.8,69.8 Z" fill="rgba(255,217,61,0.4)"/>
-          <path d="M40,40 L59.8,69.8 A36,36 0 0,1 20.2,69.8 Z" fill="rgba(255,217,61,0.25)"/>
-          <path d="M40,40 L20.2,69.8 A36,36 0 0,1 4,40 Z" fill="rgba(77,150,255,0.3)"/>
-          <path d="M40,40 L4,40 A36,36 0 0,1 40,4 Z" fill="rgba(107,203,119,0.3)"/>
-          <circle cx="40" cy="40" r="10" fill="#161b24" stroke="#2a3346" stroke-width="1.5"/>
-          <text x="40" y="44" text-anchor="middle" font-size="12" fill="#fff">💪</text>
-        </svg>
-        <h4>НАБІР</h4>
-        <p>⅓ білок · ⅓ вуглеводи · ⅙ жири · ⅙ клітковина</p>
-      </div>
-      <div class="plate-card">
-        <div class="plate-visual" style="background:rgba(232,255,71,0.08); font-size:34px">⏰</div>
-        <h4>ТАЙМИНГ</h4>
-        <p>Їж кожні 3-4 години. Не чекай голоду — їж за розкладом.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ПРАВИЛА -->
-  <div class="rules-section">
-    <div class="section-title">5 правил, які не порушуються</div>
-    <div class="rules-grid">
-      <div class="rule-card">
-        <div class="rule-num">01</div>
+      <div class="principle-card">
+        <div class="principle-num">04</div>
         <div>
           <h4>Білок у кожному прийомі</h4>
-          <p>Мінімум 25-40г білку на прийом. Без цього тіло не будує м'язи і не відновлюється.</p>
+          <p>Дотримуйся співвідношення білку, яке вказано в кожному прийомі. Білок важливий для збереження м'язів і відчуття ситості — якщо є ситість, ти не зриваєшся.</p>
         </div>
       </div>
-      <div class="rule-card">
-        <div class="rule-num">02</div>
+
+      <div class="principle-card">
+        <div class="principle-num">05</div>
         <div>
-          <h4>Вуглеводи — зранку і вдень</h4>
-          <p>Чим пізніше — тим менше вуглеводів. Ввечері тіло їх не спалює — відкладає.</p>
+          <h4>Один прийом без вуглеводів</h4>
+          <p>Один прийом на день — чисто білковий, без вуглеводів. Зазвичай вечеря, але можна міняти. Це просто структура, яка допомагає трохи менше споживати калорій. Дотримуйся структури — і все.</p>
         </div>
       </div>
-      <div class="rule-card">
-        <div class="rule-num">03</div>
+
+      <div class="principle-card">
+        <div class="principle-num">06</div>
         <div>
-          <h4>Вода 30-40мл/кг ваги</h4>
-          <p>Без достатньо води метаболізм сповільнюється на 3%. Пий між прийомами їжі.</p>
+          <h4>7 000 кроків щодня</h4>
+          <p>Це твій стабільний розхід палива. Щодня закриваємо 7000 кроків — і результат буде стабільним без сильних коливань. Якщо вага зупинилась — підніми до 10000.</p>
         </div>
       </div>
-      <div class="rule-card">
-        <div class="rule-num">04</div>
-        <div>
-          <h4>Не пропускай прийоми</h4>
-          <p>Пропуск їжі = стрес + підвищення кортизолу = руйнування м'язів і уповільнення метаболізму.</p>
+
+    </div>
+  </div>
+
+  <!-- 80/20 SECTION -->
+  <div class="rule-section">
+    <div class="section-title">Правило 80 / 20 — як це виглядає</div>
+    <div class="rule-main-card">
+
+      <div class="pie-wrap">
+        <svg viewBox="0 0 220 220" width="190" height="190">
+          <defs>
+            <filter id="ps">
+              <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(0,0,0,0.45)"/>
+            </filter>
+          </defs>
+          <!-- 80% segment — clockwise from top, 288° -->
+          <path d="M 110,110 L 110,20 A 90,90 0 1,1 24.4,82.2 Z"
+                fill="#6bcb77" opacity="0.88" filter="url(#ps)"/>
+          <!-- 20% segment — pulled out (translated outward in the slice direction) -->
+          <g transform="translate(-8,-11)">
+            <path d="M 110,110 L 24.4,82.2 A 90,90 0 0,1 110,20 Z"
+                  fill="#e8ff47" opacity="0.95" filter="url(#ps)"/>
+          </g>
+          <!-- Center ring -->
+          <circle cx="110" cy="110" r="42" fill="#161b24"/>
+          <text x="110" y="106" text-anchor="middle" font-size="13"
+                fill="#f0f4ff" font-family="'Unbounded', sans-serif" font-weight="900">191г</text>
+          <text x="110" y="121" text-anchor="middle" font-size="9"
+                fill="#7a8499" font-family="Manrope, sans-serif">вуглеводів</text>
+        </svg>
+        <div class="pie-legend">
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#6bcb77"></div>
+            <span>80% — твоя норма</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:#e8ff47"></div>
+            <span>20% — що завгодно</span>
+          </div>
         </div>
       </div>
-      <div class="rule-card">
-        <div class="rule-num">05</div>
-        <div>
-          <h4>Овочі — щодня</h4>
-          <p>Клітковина уповільнює засвоєння цукру, годує мікробіом і покращує засвоєння білку.</p>
+
+      <div class="rule-text">
+        <h3>Як це працює на практиці</h3>
+        <p>
+          Уяви, що твоя денна норма вуглеводів — це ця тарілка. <strong>80% із неї</strong> — це крупи, хліб, фрукти, овочі. Та їжа, яку ти бачиш у прийомах вище.
+        </p>
+        <p>
+          <strong>20% — той шматочок, що вирізаний.</strong> Це місце, куди ти можеш вписати що завгодно: шоколад, піцу, морозиво. Головне — вписати в загальну норму калорій і не виходити за рамки. Білок тримаєш завжди.
+        </p>
+        <p>
+          Якщо, наприклад, тримаєшся добре — можеш взагалі не використовувати ці 20%. Але якщо хочеться — вони є, і це не зрив.
+        </p>
+        <div class="rule-tags">
+          <span class="rule-tag green">Рис / гречка</span>
+          <span class="rule-tag green">Овочі</span>
+          <span class="rule-tag green">Фрукти</span>
+          <span class="rule-tag green">Крупи</span>
+          <span class="rule-tag yellow">Шоколад</span>
+          <span class="rule-tag yellow">Піца</span>
+          <span class="rule-tag yellow">Що хочеш</span>
         </div>
       </div>
-      <div class="rule-card">
-        <div class="rule-num">06</div>
-        <div>
-          <h4>Постійність > перфекціонізм</h4>
-          <p>Система 80/20. Відпрацюй 6 днів ідеально — один день можна більш вільно. Без стресу.</p>
-        </div>
-      </div>
+
     </div>
   </div>
 
   <div class="footer-note">Зроблено для твого наставництва ✦</div>
 </div>
 
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-meal-icon" id="modalIcon"></div>
+      <div class="modal-meal-info">
+        <h2 id="modalTitle"></h2>
+        <div class="modal-time" id="modalTime"></div>
+        <div class="modal-total-strip" id="modalStrip"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tip" id="modalTip"></div>
+    <div class="modal-variants-label">Варіанти прийому</div>
+    <div class="modal-variants" id="modalVariants"></div>
+  </div>
+</div>
+
 <script>
-  function setMode(mode) {
-    document.querySelectorAll('.mode-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(mode).classList.add('active');
-    const btns = document.querySelectorAll('.mode-btn');
-    if (mode === 'cut') btns[0].classList.add('active');
-    else btns[1].classList.add('active');
+const meals = {
+  breakfast: {
+    name: 'Сніданок',
+    time: '09:00 – 10:00',
+    icon: '☀️',
+    iconBg: 'rgba(255,217,61,0.15)',
+    total: { kcal: 735, p: 52, f: 23, c: 81 },
+    tip: 'Ми свідомо трохи відкладаємо сніданок, щоб змістити вікна прийомів їжі — тим самим потім легше дотриматися до вечора і не ходити півдня голодним. Одразу після підйому — <strong>склянку води. Це база.</strong>',
+    variants: [
+      {
+        id: 'b1',
+        name: 'Вівсянка + Протеїн + Арахісова паста',
+        photo: 'breakfast-1.png',
+        photoBg: 'linear-gradient(135deg, #2a1f0a 0%, #1c1408 100%)',
+        ingredients: [
+          { name: '110г вівсяної крупи (сухої)', p: 14, f: 7, c: 73, kcal: 410 },
+          { name: '40г протеїну', p: 30, f: 1, c: 3, kcal: 140 },
+          { name: '30г арахісової пасти', p: 8, f: 15, c: 5, kcal: 185 },
+        ],
+        total: { p: 52, f: 23, c: 81, kcal: 735 },
+        steps: [
+          'Купуй вівсянку таку, щоб її можна було просто залити окропом — залив, прикрив кришкою, дав постояти 3–5 хвилин.',
+          'Поки вівсянка настоюється — додаєш протеїн прямо в кашу і добре перемішуєш. Або збиваєш у шейкері окремо з водою і питій поруч.',
+          'Арахісову пасту (30г) кидаєш зверху — від тепла вона розтає сама. Все.',
+        ],
+        note: null
+      },
+      {
+        id: 'b2',
+        name: 'Вівсяно-млинці',
+        photo: 'breakfast-2.png',
+        photoBg: 'linear-gradient(135deg, #1a1008 0%, #120e04 100%)',
+        ingredients: [
+          { name: '3 яйця', p: 22, f: 18, c: 2, kcal: 262 },
+          { name: '80г вівсяного борошна', p: 10, f: 5, c: 55, kcal: 320 },
+          { name: '1 банан (~120г)', p: 1, f: 0, c: 27, kcal: 105 },
+        ],
+        total: { p: 33, f: 23, c: 84, kcal: 687 },
+        steps: [
+          'У блендер розбий 3 яйця, додай дрібку солі. Збий до легкої однорідності.',
+          'Додай банан цілим шматком — збий знову. Він дає солодкість і текстуру.',
+          'Всип 80г вівсяного борошна і дрібку розпушувача. Збий до однорідного тіста. Замість готового борошна — можна просто змолоти звичайну вівсянку в блендері.',
+          'Постав сковорідку на мінімальний вогонь. Вона має бути чистою — тоді нічого не прилипне.',
+          'Викладай порції тіста ложкою. Чекаєш поки на поверхні з\'являться бульбашки і почнуть лопатися — це сигнал перевертати.',
+          'Обсмажуй з іншого боку до золотистого кольору.',
+        ],
+        note: 'Подавати з арахісовою пастою, медом або свіжими ягодами. Те саме тісто підходить для вафельниці.'
+      },
+      {
+        id: 'b3',
+        name: 'Лосось + Хліб + Авокадо',
+        photo: 'breakfast-3.png',
+        photoBg: 'linear-gradient(135deg, #0a1a1f 0%, #061218 100%)',
+        ingredients: [
+          { name: '100г цільнозернового хліба', p: 10, f: 4, c: 50, kcal: 275 },
+          { name: '100г слабосолоного лосося', p: 20, f: 13, c: 0, kcal: 200 },
+          { name: '50г творожного сиру', p: 3, f: 11, c: 2, kcal: 120 },
+          { name: '50г авокадо', p: 1, f: 8, c: 4, kcal: 90 },
+        ],
+        total: { p: 34, f: 36, c: 56, kcal: 685 },
+        steps: [
+          'Хліб нарізати скибками.',
+          'Кожну скибку намазати творожним сиром (50г).',
+          'Зверху — тонко нарізаний лосось (100г).',
+          'Авокадо (50г) нарізати скибками або розім\'яти вилкою — викласти зверху або збоку.',
+          'Дрібка солі, чорний перець, пару крапель лимонного соку — і готово.',
+        ],
+        note: 'Приготування 3–4 хвилини. Ідеально коли зранку нема часу.'
+      },
+      {
+        id: 'b4',
+        name: 'Крупа + М\'ясо + Авокадо',
+        photo: 'breakfast-4.png',
+        photoBg: 'linear-gradient(135deg, #0f1a0a 0%, #0a1208 100%)',
+        ingredients: [
+          { name: '100г крупи (рис/гречка, сухої)', p: 8, f: 2, c: 77, kcal: 360 },
+          { name: '200г курячого філе (сире)', p: 46, f: 4, c: 0, kcal: 220 },
+          { name: '80г авокадо', p: 2, f: 12, c: 7, kcal: 128 },
+          { name: 'Овочі (порція)', p: 2, f: 0, c: 5, kcal: 30 },
+        ],
+        total: { p: 58, f: 18, c: 89, kcal: 738 },
+        steps: [
+          'Ставимо побільше води, доводимо до кипіння. Тим часом промиваємо рис або гречку.',
+          'Рис: засипаємо в окріп, солимо воду — варимо стільки хвилин, скільки на упаковці (зазвичай 13–15 хв.). Зливаємо — виходить розсипчастий рис.',
+          'Гречка: так само засипаємо в окріп, 7 хвилин, зливаємо через сито. Розсипчаста, не злипається.',
+          'Куряче філе (200г) нарізати, смажити на спреї 7–9 хв. або запекти при 180°C 20–25 хв.',
+          'Авокадо (80г) нарізати на кубики, додати до тарілки разом з крупою і м\'ясом.',
+        ],
+        note: 'Крупу і м\'ясо зручно готувати заздалегідь — зранку просто розігрів і все.'
+      },
+    ]
+  },
+
+  lunch: {
+    name: 'Обід',
+    time: '13:00 – 15:00',
+    icon: '⚡',
+    iconBg: 'rgba(255,107,107,0.15)',
+    total: { kcal: 720, p: 63, f: 14, c: 77 },
+    tip: 'Якщо немає можливості дотриматися чіткої системи і приготувати крупу — вибирай по структурі: <strong>вуглеводи + білок.</strong> Вуглеводи можуть бути будь-які, орієнтуйся на джерела, які в тебе є.',
+    variants: [
+      {
+        id: 'l1',
+        name: 'Крупа + Куряча грудка + Овочі',
+        photo: 'lunch-1.png',
+        photoBg: 'linear-gradient(135deg, #1a0f08 0%, #120a04 100%)',
+        ingredients: [
+          { name: '100г крупи (рис/гречка, сухої)', p: 8, f: 2, c: 77, kcal: 360 },
+          { name: '250г курячого філе (сире)', p: 58, f: 5, c: 0, kcal: 280 },
+          { name: 'Овочі (велика порція)', p: 2, f: 0, c: 5, kcal: 30 },
+        ],
+        total: { p: 68, f: 7, c: 82, kcal: 670 },
+        steps: [
+          'Ставимо побільше води, доводимо до кипіння, тим часом промиваємо рис.',
+          'Засипаємо рис в окріп, солимо воду — варимо за упаковкою, зазвичай 13–15 хвилин. Якщо трохи перевариш — він стане більшим в об\'ємі, але не перестарайся щоб не розварився. Зливаємо воду — і виходить розсипчастий рис без злипань.',
+          'Гречка так само: засипаємо в окріп, 7 хвилин, зливаємо через сито або кришку. Розсипчаста.',
+          'Куряче філе (250г) нарізати, обсмажити на спреї-розпилювачі 7–10 хвилин або запекти при 180°C 25 хвилин.',
+          'Подавати з великою порцією свіжих або запечених овочів.',
+        ],
+        note: 'Для смаження — спрей-розпилювач з оливковою олією. Рівномірний шар без зайвих калорій.'
+      },
+      {
+        id: 'l2',
+        name: 'Гречка + Котлети з індичого фаршу + Овочі',
+        photo: 'lunch-2.png',
+        photoBg: 'linear-gradient(135deg, #1a1208 0%, #110d04 100%)',
+        ingredients: [
+          { name: '100г гречки (сухої)', p: 13, f: 3, c: 68, kcal: 343 },
+          { name: '250г індичого фаршу 7%', p: 50, f: 18, c: 0, kcal: 375 },
+          { name: 'Овочі (велика порція)', p: 2, f: 0, c: 5, kcal: 30 },
+        ],
+        total: { p: 65, f: 21, c: 73, kcal: 748 },
+        steps: [
+          'Ставимо воду, доводимо до кипіння, промиваємо гречку. Засипаємо в окріп — 7 хвилин, зливаємо через сито. Розсипчаста і без злипань.',
+          'Фарш (250г) посолити, поперчити, додати спеції за смаком і трохи муки. Вимісити руками. Намочити руки — і формувати котлети набагато легше.',
+          'Обсмажити на спреї по 4–5 хвилин з кожного боку на середньому вогні. Або в духовці — теж виходить супово.',
+          'Подавати з гречкою та великою порцією свіжих або тушкованих овочів.',
+        ],
+        note: 'Фарш — беремо до 7% жирності, максимум 10%. Це стеля.'
+      },
+      {
+        id: 'l3',
+        name: 'Макарони + Індичий фарш + Овочі',
+        photo: 'lunch-3.png',
+        photoBg: 'linear-gradient(135deg, #0e1a10 0%, #091209 100%)',
+        ingredients: [
+          { name: '100г макаронів з твердих сортів (сухих)', p: 13, f: 1, c: 71, kcal: 350 },
+          { name: '200г індичого фаршу 7%', p: 40, f: 14, c: 0, kcal: 300 },
+          { name: 'Овочі (велика порція)', p: 2, f: 0, c: 5, kcal: 30 },
+        ],
+        total: { p: 55, f: 15, c: 76, kcal: 680 },
+        steps: [
+          'Ставимо побільше води, доводимо до кипіння. Готуємо як крупу — більше води, закинули, зварили, злили.',
+          'Засипаємо макарони, солимо воду — варимо за інструкцією на упаковці, зазвичай 8–10 хвилин. Зливаємо.',
+          'Фарш (200г) обсмажити на спреї або сухій сковорідці, розбиваючи лопаткою на дрібні шматочки — 8–10 хвилин.',
+          'Посолити, поперчити, можна трохи томатної пасти. Змішати з макаронами або подати окремо.',
+          'Подавати з великою порцією свіжих овочів або салату.',
+        ],
+        note: 'Макарони з твердих сортів не розварюються і мають нижчий глікемічний індекс ніж звичайні.'
+      },
+    ]
+  },
+
+  dinner: {
+    name: 'Вечеря',
+    time: '19:00 – 21:00',
+    icon: '🌙',
+    iconBg: 'rgba(79,195,247,0.15)',
+    total: { kcal: 520, p: 61, f: 22, c: 22 },
+    tip: '<strong>Тільки білок + жири, мінімум вуглеводів.</strong>',
+    variants: [
+      {
+        id: 'd1',
+        name: 'Творог + Ягоди + Арахісова паста',
+        photo: 'dinner-1.png',
+        photoBg: 'linear-gradient(135deg, #1a0f1f, #120a18)',
+        ingredients: [
+          { name: '250г творогу (5%)', p: 42, f: 12, c: 8, kcal: 300 },
+          { name: '100г грецького йогурту (0–2%)', p: 10, f: 2, c: 4, kcal: 75 },
+          { name: '100г ягід (лохина або будь-які)', p: 1, f: 0, c: 10, kcal: 45 },
+          { name: '20г арахісової пасти', p: 5, f: 10, c: 3, kcal: 120 },
+        ],
+        total: { p: 58, f: 24, c: 25, kcal: 540 },
+        steps: [
+          'Відкрив пачку творогу — накинув у тарілку.',
+          'Зверху — грецький йогурт. Можна перемішати, можна залишити як поливку і їсти ложкою разом. Мені так смачніше, але тут за своїм смаком.',
+          'Кидаєш ягоди зверху: лохина, малина, полуниця — будь-які ягоди окрім винограду.',
+          'Зверху — арахісова паста або будь-яка інша паста, або горіхи.',
+          'Все. Нічого готувати не треба.',
+        ],
+        note: null
+      },
+      {
+        id: 'd2',
+        name: 'Куряча грудка + Авокадо + Соус з йогурту',
+        photo: 'dinner-2.png',
+        photoBg: 'linear-gradient(135deg, #0f1a0a, #091208)',
+        ingredients: [
+          { name: '250г курячого філе (сире)', p: 58, f: 5, c: 0, kcal: 280 },
+          { name: '100г грецького йогурту (2%)', p: 10, f: 2, c: 4, kcal: 75 },
+          { name: '100г авокадо', p: 2, f: 15, c: 9, kcal: 160 },
+          { name: 'Овочі, зелень, салат', p: 2, f: 0, c: 5, kcal: 30 },
+        ],
+        total: { p: 72, f: 22, c: 18, kcal: 545 },
+        steps: [
+          'Куряче філе зручно готувати заздалегідь — наприклад, коли варив крупу на обід, одразу приготував і філе. Смажиш на спреї, щоб не витрачати багато олії. Нарізаєш на кубики.',
+          'Авокадо (100г) нарізаєш на кубики так само.',
+          'Грецький йогурт (обов\'язково знежирений або до 2%) — натираєш до нього часник, трохи підсолюєш — виходить топовий соус.',
+          'Все закидаєш разом і перемішуєш. Салат, зелень, овочі — і готово. 5 хвилин якщо м\'ясо вже готове.',
+        ],
+        note: null
+      },
+      {
+        id: 'd3',
+        name: 'Тунець + Авокадо + Соус з йогурту',
+        photo: 'dinner-3.png',
+        photoBg: 'linear-gradient(135deg, #0a1520, #061018)',
+        ingredients: [
+          { name: '190г тунця (у власному соку)', p: 46, f: 1, c: 0, kcal: 195 },
+          { name: '100г грецького йогурту (2%)', p: 10, f: 2, c: 4, kcal: 75 },
+          { name: '100г авокадо', p: 2, f: 15, c: 9, kcal: 160 },
+          { name: 'Овочі, зелень, салат', p: 2, f: 0, c: 5, kcal: 30 },
+        ],
+        total: { p: 60, f: 18, c: 18, kcal: 460 },
+        steps: [
+          'Відкрив банку тунця у власному соку (без олії — важливо), злив воду, накидав у тарілку, розбив вилкою.',
+          'Авокадо (100г) нарізав на кубики. Замість авокадо можна — 20г оливкової олії. Або-або, на свій смак.',
+          'Грецький йогурт (знежирений) + натертий часник + трохи солі = соус за хвилину.',
+          'Нарізав салат і зелень, все закинув разом і перемішав.',
+          'Готово за 5 хвилин — взагалі без готування.',
+        ],
+        note: null
+      },
+      {
+        id: 'd4',
+        name: 'Протеїновий коктейль',
+        photo: 'dinner-4.png',
+        photoBg: 'linear-gradient(135deg, #120a1f, #0d0815)',
+        ingredients: [
+          { name: '250г творогу (5%)', p: 42, f: 12, c: 8, kcal: 300 },
+          { name: '100мл молока (1.5%)', p: 3, f: 2, c: 5, kcal: 45 },
+          { name: '60г банана (пів великого)', p: 1, f: 0, c: 13, kcal: 55 },
+          { name: '20г арахісової пасти', p: 5, f: 10, c: 3, kcal: 120 },
+        ],
+        total: { p: 51, f: 24, c: 29, kcal: 520 },
+        steps: [
+          'У блендер: творог (250г), молоко (100мл), пів банану (60г), арахісова паста (20г).',
+          'Збив — виходить топовий коктейль. Готується буквально хвилину.',
+          'Замість арахісової пасти: будь-яка інша паста, горіхи, або насіння чіа.',
+        ],
+        note: null
+      },
+    ]
   }
+};
+
+function buildVariantHTML(v) {
+  const photoHTML = v.photo
+    ? `<img src="${v.photo}" alt="${v.name}" loading="lazy">`
+    : `<div class="variant-photo-grad" style="background:${v.gradient}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji}</span></div>`;
+  const photoBg = v.photoBg || (v.gradient || 'transparent');
+
+  const ingRows = v.ingredients.map(i => `
+    <tr>
+      <td>${i.name}</td>
+      <td>${i.p}</td>
+      <td>${i.f}</td>
+      <td>${i.c}</td>
+      <td>${i.kcal}</td>
+    </tr>
+  `).join('');
+
+  const steps = v.steps.map(s => `<li>${s}</li>`).join('');
+  const noteHTML = v.note ? `<div class="recipe-note">${v.note}</div>` : '';
+
+  return `
+    <div class="variant-card" id="vc-${v.id}">
+      <div class="variant-layout">
+        <div class="variant-photo" style="background:${photoBg}">${photoHTML}</div>
+        <div class="variant-body">
+          <div class="variant-name">${v.name}</div>
+          <table class="ing-table">
+            <thead>
+              <tr><th>Продукт</th><th>Б</th><th>Ж</th><th>В</th><th>ккал</th></tr>
+            </thead>
+            <tbody>${ingRows}</tbody>
+            <tfoot>
+              <tr>
+                <td>Разом</td>
+                <td>${v.total.p}г</td>
+                <td>${v.total.f}г</td>
+                <td>${v.total.c}г</td>
+                <td>${v.total.kcal}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <button class="recipe-toggle" onclick="toggleRecipe('${v.id}')">
+            <span>Рецепт приготування</span>
+            <span class="toggle-icon">▼</span>
+          </button>
+          <div class="recipe-steps" id="rs-${v.id}">
+            <ol>${steps}</ol>
+            ${noteHTML}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openModal(key) {
+  const meal = meals[key];
+  if (!meal) return;
+
+  const icon = document.getElementById('modalIcon');
+  icon.textContent = meal.icon;
+  icon.style.background = meal.iconBg;
+
+  document.getElementById('modalTitle').textContent = meal.name;
+  document.getElementById('modalTime').textContent = meal.time;
+  document.getElementById('modalTip').innerHTML = meal.tip;
+
+  document.getElementById('modalStrip').innerHTML = `
+    <span class="mts p">Б ${meal.total.p}г</span>
+    <span class="mts f">Ж ${meal.total.f}г</span>
+    <span class="mts c">В ${meal.total.c}г</span>
+    <span class="mts k">${meal.total.kcal} ккал</span>
+  `;
+
+  document.getElementById('modalVariants').innerHTML =
+    meal.variants.map(buildVariantHTML).join('');
+
+  const sheet = document.getElementById('modalSheet');
+  sheet.scrollTop = 0;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function toggleRecipe(id) {
+  const btn = document.querySelector(`#vc-${id} .recipe-toggle`);
+  const steps = document.getElementById(`rs-${id}`);
+  btn.classList.toggle('open');
+  steps.classList.toggle('open');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+(function () {
+  const sheet = document.getElementById('modalSheet');
+  let startY = 0;
+  sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  sheet.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - startY > 90 && sheet.scrollTop === 0) closeModal();
+  }, { passive: true });
+})();
 </script>
+
 </body>
 </html>
